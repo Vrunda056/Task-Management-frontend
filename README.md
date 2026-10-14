@@ -1,4 +1,4 @@
-# Studio frontend
+# Task frontend
 
 Next.js App Router application. Start locally with:
 

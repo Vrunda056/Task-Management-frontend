@@ -4,6 +4,7 @@ export const API_BASE_URL = (
 
 export const API_ENDPOINTS = {
   users: {
-    create: `${API_BASE_URL}/users`,
+    collection: `${API_BASE_URL}/users`,
+    byId: (id: string) => `${API_BASE_URL}/users/${encodeURIComponent(id)}`,
   },
 } as const;

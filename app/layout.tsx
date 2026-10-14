@@ -3,8 +3,8 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Task",
-  description: "Task management application",
+  title: "Users | Task Management System",
+  description: "Manage users in the Task Management System.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
