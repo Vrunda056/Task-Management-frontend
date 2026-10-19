@@ -7,4 +7,8 @@ export const API_ENDPOINTS = {
     collection: `${API_BASE_URL}/users`,
     byId: (id: string) => `${API_BASE_URL}/users/${encodeURIComponent(id)}`,
   },
+  projects: {
+    collection: `${API_BASE_URL}/projects`,
+    byId: (id: string) => `${API_BASE_URL}/projects/${encodeURIComponent(id)}`,
+  },
 } as const;

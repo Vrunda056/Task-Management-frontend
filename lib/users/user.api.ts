@@ -46,7 +46,7 @@ export async function createUser(input: CreateUserInput): Promise<UserResponse> 
 }
 
 export async function getUsers(): Promise<UserResponse[]> {
-  const response = await fetch(API_ENDPOINTS.users.collection);
+  const response = await fetch(API_ENDPOINTS.users.collection, { cache: "no-store" });
   if (!response.ok) {
     throw await parseError(response);
   }
@@ -54,7 +54,7 @@ export async function getUsers(): Promise<UserResponse[]> {
 }
 
 export async function getUser(id: string): Promise<UserResponse> {
-  const response = await fetch(API_ENDPOINTS.users.byId(id));
+  const response = await fetch(API_ENDPOINTS.users.byId(id), { cache: "no-store" });
   if (!response.ok) {
     throw await parseError(response);
   }

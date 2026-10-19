@@ -12,7 +12,6 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/lib/users/use-user";
-import Link from "next/link";
 
 function UserForm({
   user,
@@ -143,21 +142,10 @@ export function UserManagement() {
   const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-12">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
       <header>
-        <nav className="mb-8 flex items-center justify-between">
-          <Link
-            className="font-semibold tracking-tight text-slate-950"
-            href="/"
-          >
-            Task Management
-          </Link>
-          <Link className="text-sm font-medium text-indigo-700" href="/">
-            Home
-          </Link>
-        </nav>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-700">
-          Workspace
+          Team
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
           Users
@@ -249,6 +237,6 @@ export function UserManagement() {
           </p>
         )}
       </section>
-    </main>
+    </div>
   );
 }

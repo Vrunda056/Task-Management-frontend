@@ -1,79 +1,157 @@
+"use client";
+
 import Link from "next/link";
+import { useProjects } from "@/lib/projects/use-project";
+
+const tasks = [
+  {
+    title: "Finalize homepage wireframes",
+    project: "Website redesign",
+    initials: "AM",
+    color: "lavender",
+    due: "Today",
+    status: "In progress",
+    statusColor: "blue",
+  },
+  {
+    title: "Review Q4 campaign brief",
+    project: "Marketing campaign",
+    initials: "JL",
+    color: "peach",
+    due: "Today",
+    status: "In review",
+    statusColor: "amber",
+  },
+  {
+    title: "Update component library",
+    project: "Website redesign",
+    initials: "SK",
+    color: "mint",
+    due: "Tomorrow",
+    status: "To do",
+    statusColor: "gray",
+  },
+  {
+    title: "Prepare sprint retrospective",
+    project: "Product sprint",
+    initials: "RD",
+    color: "sky",
+    due: "Oct 18",
+    status: "To do",
+    statusColor: "gray",
+  },
+];
 
 export default function Home() {
+  const projectsQuery = useProjects();
+
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-8 text-slate-950">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20">
-        <header className="flex items-center justify-between">
-          <Link className="text-lg font-semibold tracking-tight" href="/">
-              Task Management 
-          </Link>
-          <Link
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white"
-            href="/users"
-          >
-            Users
-          </Link>
-        </header>
+    <div className="dashboard">
+      <section className="welcome-row">
+        <div>
+          <h1>Good morning, Alex <span aria-hidden="true">✦</span></h1>
+          <p className="welcome-copy">Here&apos;s what&apos;s happening with your workspace today.</p>
+        </div>
+      </section>
 
-        <section className="grid items-center gap-12 py-8 md:grid-cols-[1.1fr_0.9fr] md:py-16">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-700">
-              Task Management System
-            </p>
-            <h1 className="mt-5 max-w-xl text-5xl font-semibold leading-tight tracking-tight sm:text-6xl">
-              A clearer way to organize your work.
-            </h1>
-            <p className="mt-6 max-w-lg text-lg leading-8 text-slate-600">
-              Build your workspace one step at a time. Start by managing the
-              people you work with.
-            </p>
-            <Link
-              className="mt-8 inline-flex items-center rounded-xl bg-slate-950 px-5 py-3 font-medium text-white transition hover:bg-indigo-800"
-              href="/users"
-            >
-              Manage users
-              <span aria-hidden="true" className="ml-2">
-                →
-              </span>
-            </Link>
-          </div>
+      <section aria-label="Workspace overview" className="stats-grid">
+        <article className="stat-card">
+          <div className="stat-top"><span className="stat-icon violet-icon">▣</span><span className="stat-trend positive">↗ 12%</span></div>
+          <p className="stat-label">Total tasks</p><p className="stat-value">48</p>
+          <p className="stat-footnote">Compared to last month</p>
+        </article>
+        <article className="stat-card">
+          <div className="stat-top"><span className="stat-icon blue-icon">◷</span><span className="stat-trend positive">↗ 8%</span></div>
+          <p className="stat-label">In progress</p><p className="stat-value">18</p>
+          <p className="stat-footnote">Across 6 active projects</p>
+        </article>
+        <article className="stat-card">
+          <div className="stat-top"><span className="stat-icon green-icon">✓</span><span className="stat-trend positive">↗ 24%</span></div>
+          <p className="stat-label">Completed</p><p className="stat-value">26</p>
+          <p className="stat-footnote">You&apos;re on a great streak</p>
+        </article>
+        <article className="stat-card">
+          <div className="stat-top"><span className="stat-icon orange-icon">⚑</span><span className="stat-trend neutral">This week</span></div>
+          <p className="stat-label">Due soon</p><p className="stat-value">4</p>
+          <p className="stat-footnote">Keep your projects moving</p>
+        </article>
+      </section>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 font-semibold text-indigo-800">
-                S
-              </div>
-              <div>
-                <p className="font-semibold">Your workspace</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  A simple place to get started
-                </p>
-              </div>
-            </div>
-            <div className="mt-8 rounded-2xl bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-500">
-                CURRENT MODULE
-              </p>
-              <p className="mt-2 text-xl font-semibold">People</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Add teammates, keep their contact details current, and manage
-                workspace positions.
-              </p>
-              <Link
-                className="mt-5 inline-block text-sm font-semibold text-indigo-700 hover:text-indigo-900"
-                href="/users"
-              >
-                Go to users <span aria-hidden="true">→</span>
-              </Link>
-            </div>
+      <div className="dashboard-grid">
+        <section aria-labelledby="tasks-heading" className="panel tasks-panel">
+          <div className="panel-heading">
+            <div><h2 id="tasks-heading">My tasks</h2><p>Your focus for the week</p></div>
+            <span className="subtle-badge">This week⌄</span>
           </div>
+          <div className="task-table-wrap">
+            <table className="task-table">
+              <thead><tr><th>Task</th><th>Assignee</th><th>Due date</th><th>Status</th></tr></thead>
+              <tbody>
+                {tasks.map((task) => (
+                  <tr key={task.title}>
+                    <td><span className="task-check" aria-hidden="true" /><span className="task-name">{task.title}<small>{task.project}</small></span></td>
+                    <td><span className={`avatar avatar-${task.color}`}>{task.initials}</span></td>
+                    <td className="due-date">{task.due}</td>
+                    <td><span className={`status-pill status-${task.statusColor}`}>{task.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="table-footer">You&apos;re all caught up on your priority tasks.</p>
         </section>
 
-        <footer className="border-t border-slate-200 py-6 text-sm text-slate-500">
-          Workspace
-        </footer>
+        <section aria-labelledby="projects-heading" className="panel projects-panel">
+          <div className="panel-heading">
+            <div><h2 id="projects-heading">Your projects</h2><p>Projects in your workspace</p></div>
+            <Link className="projects-view-all" href="/projects">View all</Link>
+          </div>
+          {projectsQuery.isPending && (
+            <p className="dashboard-project-state" role="status">Loading projects...</p>
+          )}
+          {projectsQuery.isError && (
+            <p className="dashboard-project-state dashboard-project-error" role="alert">
+              Could not load projects: {projectsQuery.error.message}
+            </p>
+          )}
+          {projectsQuery.isSuccess && projectsQuery.data.length === 0 && (
+            <div className="dashboard-project-state">
+              <p>No projects yet.</p>
+              <Link href="/projects">Create your first project</Link>
+            </div>
+          )}
+          {projectsQuery.isSuccess && projectsQuery.data.length > 0 && (
+            <div className="project-list">
+              {projectsQuery.data.slice(0, 4).map((project, index) => (
+                <article className="project-item" key={project.id}>
+                  <div className="project-item-heading">
+                    <span className={"project-mark mark-" + ["purple", "orange", "green"][index % 3]} aria-hidden="true">&#10033;</span>
+                    <h3>{project.name}</h3>
+                  </div>
+                  <p className="project-item-description">
+                    {project.description || "No description provided."}
+                  </p>
+                  <p className="project-item-owner">
+                    {project.createdBy?.name ?? "Owner unavailable"}
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
-    </main>
+
+      <section aria-labelledby="activity-heading" className="panel activity-panel">
+        <div className="panel-heading">
+          <div><h2 id="activity-heading">Recent activity</h2><p>The latest updates from your team</p></div>
+          <span className="activity-period">Today</span>
+        </div>
+        <div className="activity-list">
+          <div className="activity-item"><span className="avatar avatar-lavender">AM</span><p><strong>Alex Morgan</strong> completed <b>Set up project workspace</b><small>Website redesign · 10 minutes ago</small></p><span className="activity-check">✓</span></div>
+          <div className="activity-item"><span className="avatar avatar-peach">JL</span><p><strong>Jamie Lee</strong> added a new task <b>Review visual direction</b><small>Website redesign · 1 hour ago</small></p><span className="activity-dot" /></div>
+          <div className="activity-item"><span className="avatar avatar-mint">SK</span><p><strong>Sam Kim</strong> moved <b>Campaign brief</b> to In review<small>Marketing campaign · 2 hours ago</small></p><span className="activity-dot" /></div>
+        </div>
+      </section>
+    </div>
   );
 }
