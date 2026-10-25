@@ -97,17 +97,28 @@ export function ProjectsTable({
   isDeleting,
 }: ProjectsTableProps) {
   return (
-    <div className="table-container">
-      <table className="projects-table">
-        <thead>
-          <tr>
-            <th>Project Name</th>
-            <th>Description</th>
-            <th>Owner</th>
-            <th>Created</th>
-            <th className="actions-col">Actions</th>
-          </tr>
-        </thead>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="projects-table w-full text-left border-collapse">
+          <thead className="bg-white border-b border-slate-200">
+            <tr>
+              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                Project Name
+              </th>
+              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                Description
+              </th>
+              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                Owner
+              </th>
+              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                Created
+              </th>
+              <th className="px-5 py-3.5 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wider actions-col">
+                Actions
+              </th>
+            </tr>
+          </thead>
         <tbody>
           {projects.map((project) => (
             <tr key={project.id}>
@@ -189,6 +200,7 @@ export function ProjectsTable({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

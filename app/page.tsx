@@ -81,7 +81,7 @@ export default function Home() {
         <section aria-labelledby="tasks-heading" className="panel tasks-panel">
           <div className="panel-heading">
             <div><h2 id="tasks-heading">My tasks</h2><p>Your focus for the week</p></div>
-            <span className="subtle-badge">This week⌄</span>
+            <Link className="projects-view-all" href="/tasks">Open Task Tracker →</Link>
           </div>
           <div className="task-table-wrap">
             <table className="task-table">

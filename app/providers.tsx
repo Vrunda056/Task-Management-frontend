@@ -5,10 +5,14 @@ import type { ReactNode } from "react";
 
 export const queryClient = new QueryClient();
 
+import { TaskProvider } from "@/lib/tasks/task-context";
+
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <TaskProvider>
+        {children}
+      </TaskProvider>
     </QueryClientProvider>
   );
 }

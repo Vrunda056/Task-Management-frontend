@@ -143,20 +143,17 @@ export function UserManagement() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-700">
-          Team
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-          Users
-        </h1>
-        <p className="mt-2 text-slate-600">
-          Manage the people and positions in your workspace.
-        </p>
+      <header className="projects-header">
+        <div>
+          <h1 className="projects-title">People</h1>
+          <p className="projects-subtitle">
+            Manage the people and positions in your workspace.
+          </p>
+        </div>
       </header>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-5 text-xl font-semibold">
+        <h2 className="section-heading mb-5">
           {editingUser ? `Edit ${editingUser.name}` : "Add a user"}
         </h2>
         {editingUser ? (
@@ -172,7 +169,7 @@ export function UserManagement() {
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold">All users</h2>
+          <h2 className="section-heading">All users</h2>
           {users.data && (
             <span className="text-sm text-slate-500">
               {users.data.length} {users.data.length === 1 ? "user" : "users"}
