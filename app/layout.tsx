@@ -4,8 +4,9 @@ import { WorkspaceShell } from "./workspace-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Taskly — Personal workspace",
-  description: "Create projects, manage tasks, and plan your day.",
+  title: "Taskly — Projects, tasks, and time in one workspace",
+  description:
+    "Organize projects, plan daily tasks, and track time in your Taskly workspace.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

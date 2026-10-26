@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType, ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   Calendar,
@@ -12,13 +12,14 @@ import {
   ChevronRight,
   Layers,
   LayoutGrid,
-  MoreHorizontal,
+  LogOut,
   Search,
   Settings,
   Users,
 } from "lucide-react";
 
 import { useTaskContext } from "@/lib/tasks/task-context";
+import { useAuth } from "@/lib/auth/auth-context";
 
 interface NavItem {
   label: string;
@@ -77,8 +78,75 @@ function SidebarLink({
 
 export function WorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { activeTimer } = useTaskContext();
+  const {
+    accessToken,
+    user,
+    isInitializing,
+    authError,
+    logout,
+    restoreSession,
+  } = useAuth();
+  const isAuthPage = pathname === "/login";
+
+  useEffect(() => {
+    if (isAuthPage) {
+      if (accessToken) {
+        router.replace("/");
+      }
+      return;
+    }
+
+    if (isInitializing || authError) {
+      return;
+    }
+
+    if (!accessToken) {
+      router.replace("/login");
+    }
+  }, [accessToken, authError, isAuthPage, isInitializing, router]);
+
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
+  if (isInitializing) {
+    return (
+      <div className="auth-redirecting" role="status">
+        Restoring your session...
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="auth-redirecting">
+        <p role="alert">Could not restore your session: {authError}</p>
+        <button onClick={() => void restoreSession()} type="button">
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  if (!accessToken) {
+    return (
+      <div className="auth-redirecting" role="status">
+        Redirecting to sign in...
+      </div>
+    );
+  }
+
+  const userInitials =
+    user?.name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "U";
   const pageTitle =
     pathname === "/users"
       ? "People"
@@ -150,14 +218,23 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             label="Settings"
           />
           <div className="sidebar-profile">
-            <span className="avatar avatar-lavender">AM</span>
+            <span className="avatar avatar-lavender">{userInitials}</span>
             <span className="profile-copy">
-              <strong>Alex Morgan</strong>
-              <small>alex@studio.co</small>
+              <strong>{user?.name}</strong>
+              <small>{user?.email}</small>
             </span>
-            <span aria-hidden="true" className="profile-menu">
-              <MoreHorizontal size={16} />
-            </span>
+            <button
+              aria-label="Log out"
+              className="auth-logout"
+              onClick={() => {
+                void logout();
+                router.replace("/login");
+              }}
+              title="Log out"
+              type="button"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>
@@ -221,7 +298,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
               <span className="notification-dot" />
             </button>
             <span className="topbar-divider" />
-            <span className="avatar avatar-lavender topbar-avatar">AM</span>
+            <span className="avatar avatar-lavender topbar-avatar">{userInitials}</span>
           </div>
         </header>
         <main className="workspace-main">{children}</main>
