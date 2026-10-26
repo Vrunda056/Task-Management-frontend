@@ -16,6 +16,7 @@ export const userResponseSchema = z.object({
   name: z.string(),
   email: z.email(),
   position: z.string(),
+  sheetUrl: z.url().nullable().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }).strict();

@@ -159,19 +159,19 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
             </label>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+          <div className="mt-4 pt-4 border-t border-line">
             <div className="flex items-center justify-between gap-3 mb-3">
               <div>
-                <h4 className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">
+                <h4 className="text-[var(--text-sm)] font-semibold text-ink">
                   Task Line Items & Estimates
                 </h4>
-                <p className="text-[var(--text-xs)] text-[var(--color-text-muted)] mt-0.5">
+                <p className="text-[var(--text-xs)] text-muted mt-0.5">
                   Define the individual deliverable descriptions and target minutes
                 </p>
               </div>
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--purple)] hover:bg-[#ebe6fd] bg-[#f3f0ff] transition-colors border border-[#ded7fb]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-purple hover:bg-purple-subtle bg-purple-subtle/50 transition-colors border border-purple-border cursor-pointer"
                 onClick={handleAddItem}
               >
                 <Plus size={14} />
@@ -183,9 +183,9 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 p-2 rounded-xl bg-[#faf9fc] border border-[#e8e6ef]"
+                  className="flex items-center gap-2 p-2 rounded-xl bg-canvas/30 border border-line"
                 >
-                  <div className="w-6 h-6 rounded-md bg-[#f0edff] text-[var(--purple)] text-[11px] font-bold flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-md bg-purple-subtle text-purple text-[11px] font-bold flex items-center justify-center shrink-0">
                     {index + 1}
                   </div>
                   <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -200,7 +200,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                       }
                     />
                     <div className="relative flex items-center shrink-0 sm:w-36">
-                      <Clock size={14} className="absolute left-3 text-[#9a98aa] pointer-events-none" />
+                      <Clock size={14} className="absolute left-3 text-muted pointer-events-none" />
                       <input
                         type="number"
                         min="0"
@@ -213,7 +213,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                           handleItemChange(index, "estimatedTimeMin", e.target.value)
                         }
                       />
-                      <span className="absolute right-3 text-[11px] text-[#9a98aa] font-medium pointer-events-none">
+                      <span className="absolute right-3 text-[11px] text-muted font-medium pointer-events-none">
                         min
                       </span>
                     </div>
@@ -221,7 +221,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                   {items.length > 1 && (
                     <button
                       type="button"
-                      className="p-2 text-[#9a98aa] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                      className="p-2 text-muted hover:text-danger hover:bg-danger-bg rounded-lg transition-colors shrink-0 cursor-pointer"
                       onClick={() => handleRemoveItem(index)}
                       title="Remove item"
                     >

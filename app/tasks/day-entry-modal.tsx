@@ -15,8 +15,7 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
   const [entryType, setEntryType] = useState<EntryType>(
     currentDayEntry?.entryType ?? "WORKING_DAY"
   );
-  const [label, setLabel] = useState<string>(currentDayEntry?.label ?? "");
-
+  
   const typeOptions: {
     type: EntryType;
     title: string;
@@ -50,7 +49,7 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
   ];
 
   function handleSave() {
-    updateDayEntryType(selectedDate, entryType, label.trim() || null);
+    updateDayEntryType(selectedDate, entryType);
     onClose();
   }
 
@@ -60,7 +59,7 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
         <div className="modal-header">
           <div>
             <h2>Day Schedule Settings</h2>
-            <p className="text-xs text-[#8a889c] mt-1 m-0">Date: {selectedDate}</p>
+            <p className="text-xs text-muted mt-1 m-0">Date: {selectedDate}</p>
           </div>
           <button
             type="button"
@@ -84,35 +83,22 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
                   type="button"
                   className={`flex items-start gap-3 p-3 rounded-lg border text-left cursor-pointer transition-all ${
                     isSelected
-                      ? "border-[var(--purple)] bg-[#fbfaff] ring-1 ring-[var(--purple)]"
-                      : "border-[#e4e2ed] bg-white hover:border-[#cbbeff]"
+                      ? "border-purple bg-purple-subtle/30 ring-1 ring-purple"
+                      : "border-line bg-card hover:border-purple-border"
                   }`}
                   onClick={() => setEntryType(opt.type)}
                 >
-                  <div className="w-8.5 h-8.5 rounded-lg bg-[#f4f2ff] text-[var(--purple)] grid place-items-center shrink-0">
+                  <div className="w-8.5 h-8.5 rounded-lg bg-purple-subtle text-purple grid place-items-center shrink-0">
                     <Icon size={18} />
                   </div>
                   <div>
-                    <strong className="block text-[var(--ink)] text-xs font-semibold">{opt.title}</strong>
-                    <p className="m-0 mt-0.5 text-[#8a889b] text-[11px] leading-snug">{opt.desc}</p>
+                    <strong className="block text-ink text-xs font-semibold">{opt.title}</strong>
+                    <p className="m-0 mt-0.5 text-muted text-[11px] leading-snug">{opt.desc}</p>
                   </div>
                 </button>
               );
             })}
           </div>
-
-          <label className="modal-field" style={{ marginTop: 16 }}>
-            <span className="modal-label">
-              Label or Reason <span className="optional">(e.g. Diwali, Sick Leave)</span>
-            </span>
-            <input
-              type="text"
-              className="modal-input"
-              placeholder="e.g. Annual Company Off / Casual Leave"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-            />
-          </label>
 
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>

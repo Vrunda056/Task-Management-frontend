@@ -77,13 +77,13 @@ export function TimerSettingsModal({
           </button>
         </div>
 
-        <div className="flex border-b border-[#eeedf2] px-6 bg-[#fafafc]">
+        <div className="flex border-b border-line px-6 bg-canvas/30">
           <button
             type="button"
             className={`inline-flex items-center gap-1.5 py-3 px-4 border-0 bg-transparent text-xs font-semibold cursor-pointer relative transition-colors ${
               activeTab === "timer"
-                ? "text-[var(--purple)] border-b-2 border-b-[var(--purple)]"
-                : "text-[#7a788d] hover:text-[var(--ink)]"
+                ? "text-purple border-b-2 border-b-purple"
+                : "text-muted hover:text-ink"
             }`}
             onClick={() => setActiveTab("timer")}
           >
@@ -94,8 +94,8 @@ export function TimerSettingsModal({
             type="button"
             className={`inline-flex items-center gap-1.5 py-3 px-4 border-0 bg-transparent text-xs font-semibold cursor-pointer relative transition-colors ${
               activeTab === "manual"
-                ? "text-[var(--purple)] border-b-2 border-b-[var(--purple)]"
-                : "text-[#7a788d] hover:text-[var(--ink)]"
+                ? "text-purple border-b-2 border-b-purple"
+                : "text-muted hover:text-ink"
             }`}
             onClick={() => setActiveTab("manual")}
           >
@@ -109,10 +109,10 @@ export function TimerSettingsModal({
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4.5">
                 <label
-                  className={`flex items-start gap-2.5 p-3 border rounded-lg bg-white cursor-pointer transition-all ${
+                  className={`flex items-start gap-2.5 p-3 border rounded-lg bg-card cursor-pointer transition-all ${
                     timerMode === "countdown"
-                      ? "border-[var(--purple)] bg-[#fbfaff] ring-1 ring-[var(--purple)]"
-                      : "border-[#e4e2ed] hover:border-[#cbbeff]"
+                      ? "border-purple bg-purple-subtle/30 ring-1 ring-purple"
+                      : "border-line hover:border-purple-border"
                   }`}
                 >
                   <input
@@ -124,16 +124,16 @@ export function TimerSettingsModal({
                     onChange={() => setTimerMode("countdown")}
                   />
                   <div>
-                    <strong className="block text-xs font-semibold text-[var(--ink)]">Target Countdown</strong>
-                    <p className="m-0 mt-0.5 text-[11px] text-[#89879b] leading-snug">Focus timer that notifies you when target effort is reached</p>
+                    <strong className="block text-xs font-semibold text-ink">Target Countdown</strong>
+                    <p className="m-0 mt-0.5 text-[11px] text-muted leading-snug">Focus timer that notifies you when target effort is reached</p>
                   </div>
                 </label>
 
                 <label
-                  className={`flex items-start gap-2.5 p-3 border rounded-lg bg-white cursor-pointer transition-all ${
+                  className={`flex items-start gap-2.5 p-3 border rounded-lg bg-card cursor-pointer transition-all ${
                     timerMode === "stopwatch"
-                      ? "border-[var(--purple)] bg-[#fbfaff] ring-1 ring-[var(--purple)]"
-                      : "border-[#e4e2ed] hover:border-[#cbbeff]"
+                      ? "border-purple bg-purple-subtle/30 ring-1 ring-purple"
+                      : "border-line hover:border-purple-border"
                   }`}
                 >
                   <input
@@ -145,8 +145,8 @@ export function TimerSettingsModal({
                     onChange={() => setTimerMode("stopwatch")}
                   />
                   <div>
-                    <strong className="block text-xs font-semibold text-[var(--ink)]">Stopwatch</strong>
-                    <p className="m-0 mt-0.5 text-[11px] text-[#89879b] leading-snug">Counts up continuously until you pause or stop</p>
+                    <strong className="block text-xs font-semibold text-ink">Stopwatch</strong>
+                    <p className="m-0 mt-0.5 text-[11px] text-muted leading-snug">Counts up continuously until you pause or stop</p>
                   </div>
                 </label>
               </div>
@@ -161,8 +161,8 @@ export function TimerSettingsModal({
                         type="button"
                         className={`py-1.5 px-3 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
                           selectedPreset === min && !customMinutes
-                            ? "border-[var(--purple)] bg-[#f1efff] text-[var(--purple)] font-bold"
-                            : "border-[#dedde8] bg-white text-[#4c4a5e] hover:border-[#cbbeff] hover:bg-[#fbfaff]"
+                            ? "border-purple bg-purple-subtle text-purple font-bold"
+                            : "border-line bg-card text-ink-secondary hover:border-purple-border hover:bg-purple-subtle/20"
                         }`}
                         onClick={() => {
                           setSelectedPreset(min);
@@ -177,8 +177,8 @@ export function TimerSettingsModal({
                         type="button"
                         className={`py-1.5 px-3 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
                           selectedPreset === item.estimatedTimeMin && !customMinutes
-                            ? "border-[var(--purple)] bg-[#f1efff] text-[var(--purple)] font-bold"
-                            : "border-[#dedde8] bg-white text-[#4c4a5e] hover:border-[#cbbeff] hover:bg-[#fbfaff]"
+                            ? "border-purple bg-purple-subtle text-purple font-bold"
+                            : "border-line bg-card text-ink-secondary hover:border-purple-border hover:bg-purple-subtle/20"
                         }`}
                         onClick={() => {
                           setSelectedPreset(item.estimatedTimeMin!);

@@ -36,7 +36,6 @@ function createDefaultSeedEntries(todayDate: string): DayEntry[] {
       id: "day-today",
       date: todayDate,
       entryType: "WORKING_DAY",
-      label: "Sprint Delivery Day",
       userId: "user-default-1",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -170,7 +169,7 @@ interface TaskContextType {
   deleteTaskItem: (taskItemId: string) => void;
   logManualTime: (taskItemId: string, minutes: number, note?: string) => void;
   // Day Entry Type
-  updateDayEntryType: (date: string, type: EntryType, label?: string | null) => void;
+  updateDayEntryType: (date: string, type: EntryType) => void;
   // Stats
   dayStats: {
     totalEstimatedMin: number;
@@ -338,7 +337,6 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       id: `day-${selectedDate}`,
       date: selectedDate,
       entryType: isWeekend ? "WEEKEND" : "WORKING_DAY",
-      label: isWeekend ? (dayOfWeek === 0 ? "Sunday" : "Saturday") : null,
       userId: "user-default-1",
       tasks: [],
       createdAt: now.toISOString(),
@@ -552,7 +550,6 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             id: `day-${input.date}`,
             date: input.date,
             entryType: "WORKING_DAY",
-            label: null,
             userId: "user-default-1",
             createdAt: now,
             updatedAt: now,
@@ -705,13 +702,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   );
 
   const updateDayEntryType = useCallback(
-    (date: string, type: EntryType, label?: string | null) => {
+    (date: string, type: EntryType) => {
       setEntries((prev) => {
         const existing = prev.find((e) => e.date === date);
         if (existing) {
           return prev.map((e) =>
             e.date === date
-              ? { ...e, entryType: type, label: label ?? e.label, updatedAt: new Date().toISOString() }
+              ? { ...e, entryType: type, updatedAt: new Date().toISOString() }
               : e
           );
         } else {
@@ -719,7 +716,6 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             id: `day-${date}`,
             date,
             entryType: type,
-            label: label ?? null,
             userId: "user-default-1",
             tasks: [],
             createdAt: new Date().toISOString(),

@@ -1,239 +1,359 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import {
-  createUserSchema,
-  updateUserSchema,
-  type UserResponse,
-} from "@/lib/users/user.schema";
-import {
-  useCreateUser,
-  useDeleteUser,
-  useUpdateUser,
-  useUsers,
-} from "@/lib/users/use-user";
+  Users,
+  Briefcase,
+  Sparkles,
+  Search,
+  X,
+  LayoutGrid,
+  List,
+  Filter,
+} from "lucide-react";
+import type { UserResponse } from "@/lib/users/user.schema";
+import { useDeleteUser, useUsers } from "@/lib/users/use-user";
+import { UserFormModal } from "./user-form-modal";
+import { DeleteUserModal } from "./delete-user-modal";
+import { UsersTable } from "./users-table";
+import { UsersGrid } from "./users-grid";
 
-function UserForm({
-  user,
-  onCancel,
-}: {
-  user?: UserResponse;
-  onCancel?: () => void;
-}) {
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [position, setPosition] = useState(user?.position ?? "");
-  const [validationError, setValidationError] = useState("");
-  const createMutation = useCreateUser();
-  const updateMutation = useUpdateUser();
-  const mutation = user ? updateMutation : createMutation;
+export function UserManagement() {
+  const usersQuery = useUsers();
+  const deleteMutation = useDeleteUser();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setValidationError("");
+  // Modal states
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
+  const [deletingUser, setDeletingUser] = useState<UserResponse | null>(null);
 
-    if (user) {
-      const result = updateUserSchema.safeParse({ name, email, position });
-      if (!result.success) {
-        setValidationError(
-          result.error.issues[0]?.message ?? "Please check the form fields.",
-        );
-        return;
-      }
-      updateMutation.mutate(
-        { id: user.id, input: result.data },
-        { onSuccess: onCancel },
+  // Filter & view states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState("all");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+
+  // Toast state
+  const [toast, setToast] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  function triggerToast(text: string, type: "success" | "error" = "success") {
+    setToast({ text, type });
+    setTimeout(() => {
+      setToast((current) => (current?.text === text ? null : current));
+    }, 3500);
+  }
+
+  const allUsers = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
+
+  // Derived metrics
+  const totalCount = allUsers.length;
+  const uniqueRoles = useMemo(() => {
+    const roles = Array.from(new Set(allUsers.map((u) => u.position.trim()))).filter(
+      Boolean
+    );
+    return roles.sort((a, b) => a.localeCompare(b));
+  }, [allUsers]);
+
+  const newestMember = useMemo(() => {
+    if (allUsers.length === 0) return null;
+    return [...allUsers].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
+  }, [allUsers]);
+
+  // Filtered users
+  const filteredUsers = useMemo(() => {
+    let result = [...allUsers];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (user) =>
+          user.name.toLowerCase().includes(q) ||
+          user.email.toLowerCase().includes(q) ||
+          user.position.toLowerCase().includes(q)
       );
-      return;
     }
 
-    const result = createUserSchema.safeParse({ name, email, position });
-    if (!result.success) {
-      setValidationError(
-        result.error.issues[0]?.message ?? "Please check the form fields.",
+    // Role filter
+    if (selectedRole !== "all") {
+      result = result.filter(
+        (user) => user.position.trim().toLowerCase() === selectedRole.toLowerCase()
       );
-      return;
     }
-    createMutation.mutate(result.data, {
+
+    return result;
+  }, [allUsers, searchQuery, selectedRole]);
+
+  function handleOpenCreate() {
+    setEditingUser(null);
+    setShowFormModal(true);
+  }
+
+  function handleOpenEdit(user: UserResponse) {
+    setEditingUser(user);
+    setShowFormModal(true);
+  }
+
+  function handleCloseFormModal() {
+    setShowFormModal(false);
+    setEditingUser(null);
+  }
+
+  function handleOpenDelete(user: UserResponse) {
+    setDeletingUser(user);
+  }
+
+  function handleCloseDeleteModal() {
+    setDeletingUser(null);
+  }
+
+  function handleConfirmDelete(user: UserResponse) {
+    deleteMutation.mutate(user.id, {
       onSuccess: () => {
-        setName("");
-        setEmail("");
-        setPosition("");
+        triggerToast(`Member "${user.name}" was removed.`);
+        handleCloseDeleteModal();
+      },
+      onError: (err) => {
+        triggerToast(
+          err.message || "Failed to delete user. Please try again.",
+          "error"
+        );
       },
     });
   }
 
-  return (
-    <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
-      <label className="grid gap-1 text-sm font-medium">
-        Name
-        <input
-          autoComplete="name"
-          className="rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          maxLength={100}
-          onChange={(event) => setName(event.target.value)}
-          required
-          value={name}
-        />
-      </label>
-      <label className="grid gap-1 text-sm font-medium">
-        Email
-        <input
-          autoComplete="email"
-          className="rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          maxLength={254}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-          type="email"
-          value={email}
-        />
-      </label>
-      <label className="grid gap-1 text-sm font-medium">
-        Position
-        <input
-          className="rounded-lg border border-slate-300 px-3 py-2 font-normal"
-          maxLength={100}
-          onChange={(event) => setPosition(event.target.value)}
-          required
-          value={position}
-        />
-      </label>
-      <div className="flex items-end gap-2">
-        <button
-          className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white disabled:opacity-60"
-          disabled={mutation.isPending}
-          type="submit"
-        >
-          {mutation.isPending
-            ? user
-              ? "Saving..."
-              : "Creating..."
-            : user
-              ? "Save changes"
-              : "Create user"}
-        </button>
-        {user && (
-          <button
-            className="rounded-lg border border-slate-300 px-4 py-2 font-medium"
-            onClick={onCancel}
-            type="button"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-      {(validationError || mutation.error) && (
-        <p className="text-sm text-red-700 sm:col-span-2" role="alert">
-          {validationError || mutation.error?.message}
-        </p>
-      )}
-      {createMutation.data && !user && (
-        <p className="text-sm text-green-700 sm:col-span-2" role="status">
-          Created {createMutation.data.name}.
-        </p>
-      )}
-    </form>
-  );
-}
-
-export function UserManagement() {
-  const users = useUsers();
-  const deleteMutation = useDeleteUser();
-  const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
+  function handleClearFilters() {
+    setSearchQuery("");
+    setSelectedRole("all");
+  }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
+    <div className="projects-page pb-12">
+      {/* Top Header */}
       <header className="projects-header">
         <div>
-          <h1 className="projects-title">People</h1>
+          <h1 className="projects-title">People & Teams</h1>
           <p className="projects-subtitle">
-            Manage the people and positions in your workspace.
+            Manage team members, roles, and access across projects and workflows.
           </p>
         </div>
+        <button
+          className="primary-button"
+          onClick={handleOpenCreate}
+          type="button"
+        >
+          <span>+</span> New Member
+        </button>
       </header>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="section-heading mb-5">
-          {editingUser ? `Edit ${editingUser.name}` : "Add a user"}
-        </h2>
-        {editingUser ? (
-          <UserForm
-            key={editingUser.id}
-            user={editingUser}
-            onCancel={() => setEditingUser(null)}
+      {/* Filter and Control Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-6 p-3 rounded-xl border border-line bg-card shadow-xs">
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            className="modal-input !h-9 !pl-9 !pr-8 text-xs"
+            placeholder="Search by name, email, or role..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        ) : (
-          <UserForm />
-        )}
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="section-heading">All users</h2>
-          {users.data && (
-            <span className="text-sm text-slate-500">
-              {users.data.length} {users.data.length === 1 ? "user" : "users"}
-            </span>
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink p-0.5 rounded cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
 
-        {users.isPending && <p role="status">Loading users...</p>}
-        {users.isError && (
-          <p className="text-red-700" role="alert">
-            Could not load users: {users.error.message}
-          </p>
+        {/* Filter Dropdowns and View Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Role Filter */}
+          <div className="flex items-center gap-1.5 text-xs">
+            <Filter className="w-3.5 h-3.5 text-muted" />
+            <select
+              className="modal-input !h-9 !w-auto text-xs py-1"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              aria-label="Filter by role"
+            >
+              <option value="all">All Roles ({allUsers.length})</option>
+              {uniqueRoles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center rounded-lg border border-line bg-canvas p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                viewMode === "table"
+                  ? "bg-card text-purple shadow-2xs font-semibold"
+                  : "text-muted hover:text-ink"
+              }`}
+              title="Table view"
+              aria-label="Table view"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-card text-purple shadow-2xs font-semibold"
+                  : "text-muted hover:text-ink"
+              }`}
+              title="Grid cards view"
+              aria-label="Grid cards view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+          </div>
+          {(searchQuery.trim() || selectedRole !== "all") && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold text-muted hover:text-ink hover:bg-canvas transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              Clear filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      {/* Loading state */}
+      {usersQuery.isPending && (
+        <div className="page-state">
+          <div className="loading-spinner" />
+          <p>Loading team members...</p>
+        </div>
+      )}
+
+      {/* Error state */}
+      {usersQuery.isError && (
+        <div className="page-error">
+          <span className="error-icon">⚠</span>
+          <div>
+            <h3>Failed to load members</h3>
+            <p>{usersQuery.error.message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty State: No users in system */}
+      {!usersQuery.isPending && !usersQuery.isError && allUsers.length === 0 && (
+        <div className="page-empty">
+          <div className="empty-icon">👥</div>
+          <h3>No team members yet</h3>
+          <p>Add your team members to assign tasks and track project workflows</p>
+          <button
+            className="primary-button"
+            onClick={handleOpenCreate}
+            type="button"
+          >
+            <span>+</span> Add Member
+          </button>
+        </div>
+      )}
+
+      {/* Filtered Empty State: Users exist but search/filter returned 0 results */}
+      {!usersQuery.isPending &&
+        !usersQuery.isError &&
+        allUsers.length > 0 &&
+        filteredUsers.length === 0 && (
+          <div className="page-empty">
+            <div className="empty-icon">🔍</div>
+            <h3>No matching members found</h3>
+            <p>
+              No members matched your search for &ldquo;{searchQuery}&rdquo;
+              {selectedRole !== "all" && ` with role "${selectedRole}"`}.
+            </p>
+            <button
+              className="btn btn-secondary cursor-pointer mt-2"
+              onClick={handleClearFilters}
+              type="button"
+            >
+              Reset Filters
+            </button>
+          </div>
         )}
-        {users.data?.length === 0 && (
-          <p className="rounded-lg bg-slate-50 px-4 py-8 text-center text-slate-600">
-            No users yet. Add the first user above.
-          </p>
+
+      {/* Data Render: Table or Grid View */}
+      {!usersQuery.isPending &&
+        !usersQuery.isError &&
+        filteredUsers.length > 0 && (
+          <>
+            <div className="flex items-center justify-between text-xs text-muted mb-3 px-1">
+              <span>
+                Showing {filteredUsers.length} of {allUsers.length}{" "}
+                {allUsers.length === 1 ? "member" : "members"}
+              </span>
+            </div>
+
+            {viewMode === "table" ? (
+              <UsersTable
+                users={filteredUsers}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+                isDeleting={deleteMutation.isPending}
+              />
+            ) : (
+              <UsersGrid
+                users={filteredUsers}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+                isDeleting={deleteMutation.isPending}
+              />
+            )}
+          </>
         )}
-        {users.data && users.data.length > 0 && (
-          <ul className="divide-y divide-slate-200">
-            {users.data.map((user) => (
-              <li
-                className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
-                key={user.id}
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-950">
-                    {user.name}
-                  </p>
-                  <p className="text-sm text-slate-600">{user.email}</p>
-                  <p className="text-sm text-slate-500">{user.position}</p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium"
-                    onClick={() => setEditingUser(user)}
-                    type="button"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 disabled:opacity-60"
-                    disabled={deleteMutation.isPending}
-                    onClick={() => deleteMutation.mutate(user.id)}
-                    type="button"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        {deleteMutation.isError && (
-          <p className="mt-4 text-sm text-red-700" role="alert">
-            Could not delete user: {deleteMutation.error.message}
-          </p>
-        )}
-        {deleteMutation.isSuccess && (
-          <p className="mt-4 text-sm text-green-700" role="status">
-            User deleted.
-          </p>
-        )}
-      </section>
+
+      {/* Modals */}
+      {showFormModal && (
+        <UserFormModal
+          user={editingUser}
+          onClose={handleCloseFormModal}
+          onSuccess={(msg) => triggerToast(msg, "success")}
+        />
+      )}
+
+      {deletingUser && (
+        <DeleteUserModal
+          user={deletingUser}
+          isDeleting={deleteMutation.isPending}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {/* Toast Feedback */}
+      {toast && (
+        <div
+          className={`toast ${
+            toast.type === "error" ? "toast-error" : "toast-success"
+          }`}
+          role="status"
+        >
+          {toast.text}
+        </div>
+      )}
     </div>
   );
 }

@@ -46,7 +46,6 @@ export interface DayEntry {
   id: string;
   date: string; // YYYY-MM-DD
   entryType: EntryType;
-  label?: string | null;
   userId: string;
   tasks: Task[];
   createdAt: string;

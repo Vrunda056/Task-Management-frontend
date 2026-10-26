@@ -92,14 +92,14 @@ export function ActiveTimerBanner() {
         <div className="relative z-1 flex flex-wrap items-center justify-between gap-6">
           <div className="flex-1 min-w-[260px]">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success/20 border border-success/40 text-success-border text-[11px] font-bold tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                 {activeTimer.isRunning ? "TRACKING ACTIVE" : "TIMER PAUSED"}
               </span>
               <span className="px-2 py-0.5 rounded-full bg-white/10 text-[#d1cfee] text-[11px] font-semibold">
                 {activeTimer.mode === "countdown" ? "Target Countdown" : "Stopwatch Tracker"}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#a694ff]/20 text-[#c7bcff] text-[11px] font-semibold">
+              <span className="px-2 py-0.5 rounded-full bg-purple/20 text-[#c7bcff] text-[11px] font-semibold">
                 {activeTimer.projectName}
               </span>
             </div>
@@ -111,7 +111,7 @@ export function ActiveTimerBanner() {
                 <span className="ml-1.5 text-[#a8a3c8]">
                   · Estimated: {estimatedMin}m · Elapsed: {elapsedMinutes}m
                   {isOvertime && (
-                    <span className="text-red-400 font-semibold"> (+{elapsedMinutes - estimatedMin}m overtime)</span>
+                    <span className="text-danger-border font-semibold"> (+{elapsedMinutes - estimatedMin}m overtime)</span>
                   )}
                 </span>
               )}
@@ -132,7 +132,7 @@ export function ActiveTimerBanner() {
               {activeTimer.isRunning ? (
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-amber-400 text-amber-950 hover:bg-amber-300 border-0 cursor-pointer transition-all"
+                  className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-warning text-white hover:bg-warning-hover border-0 cursor-pointer transition-all"
                   onClick={pauseTimer}
                   title="Pause Timer"
                 >
@@ -142,7 +142,7 @@ export function ActiveTimerBanner() {
               ) : (
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white hover:bg-emerald-600 border-0 cursor-pointer transition-all"
+                  className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-success text-white hover:bg-success-hover border-0 cursor-pointer transition-all"
                   onClick={resumeTimer}
                   title="Resume Timer"
                 >
@@ -163,7 +163,7 @@ export function ActiveTimerBanner() {
 
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-indigo-500 text-white hover:bg-indigo-600 border-0 cursor-pointer transition-all"
+                className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-lg text-xs font-semibold bg-purple text-white hover:bg-purple-hover border-0 cursor-pointer transition-all"
                 onClick={() => handleOpenStopDialog(true)}
                 title="Mark task completed and log time"
               >

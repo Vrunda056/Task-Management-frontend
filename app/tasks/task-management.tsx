@@ -16,11 +16,13 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
+  X,
   List,
   Columns,
   Coffee,
   Sun,
   Briefcase,
+  Palmtree,
 } from "lucide-react";
 
 export function TaskManagement() {
@@ -132,6 +134,17 @@ export function TaskManagement() {
       });
   }, [currentDayEntry, selectedProjectId, searchQuery, selectedStatus]);
 
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    selectedProjectId !== "ALL" ||
+    selectedStatus !== "ALL";
+
+  function handleClearFilters() {
+    setSearchQuery("");
+    setSelectedProjectId("ALL");
+    setSelectedStatus("ALL");
+  }
+
   function handleOpenTimerModal(task: Task, item: TaskItem) {
     setTimerModalTarget({ task, item });
   }
@@ -169,18 +182,18 @@ export function TaskManagement() {
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           {/* Date Selector Navigation */}
-          <div className="inline-flex items-center h-[38px] bg-white border border-slate-200 rounded-lg px-1 shadow-2xs whitespace-nowrap shrink-0">
+          <div className="inline-flex items-center h-[38px] bg-card border border-line rounded-lg px-1 shadow-2xs whitespace-nowrap shrink-0">
             <button
               type="button"
-              className="grid place-items-center w-7 h-7 rounded-md text-[#77768a] hover:bg-[#f4f3f8] hover:text-[var(--ink)] transition-colors cursor-pointer"
+              className="grid place-items-center w-7 h-7 rounded-md text-muted hover:bg-canvas hover:text-ink transition-colors cursor-pointer"
               onClick={() => handleShiftDate(-1)}
               title="Previous day"
             >
               <ChevronLeft size={16} />
             </button>
 
-            <label className="relative inline-flex items-center gap-1.5 px-2.5 h-7 text-xs font-semibold text-[#3b394f] hover:bg-[#f7f6fb] rounded-md transition-colors cursor-pointer" title="Choose specific date">
-              <Calendar size={14} className="text-[var(--purple)]" />
+            <label className="relative inline-flex items-center gap-1.5 px-2.5 h-7 text-xs font-semibold text-ink-secondary hover:bg-canvas rounded-md transition-colors cursor-pointer" title="Choose specific date">
+              <Calendar size={14} className="text-purple" />
               <span>{formattedDateTitle}</span>
               <input
                 type="date"
@@ -192,7 +205,7 @@ export function TaskManagement() {
 
             <button
               type="button"
-              className="grid place-items-center w-7 h-7 rounded-md text-[#77768a] hover:bg-[#f4f3f8] hover:text-[var(--ink)] transition-colors cursor-pointer"
+              className="grid place-items-center w-7 h-7 rounded-md text-muted hover:bg-canvas hover:text-ink transition-colors cursor-pointer"
               onClick={() => handleShiftDate(1)}
               title="Next day"
             >
@@ -202,7 +215,7 @@ export function TaskManagement() {
             {!isToday && (
               <button
                 type="button"
-                className="ml-0.5 border-0 bg-[#f1efff] text-[var(--purple)] px-2 py-1 rounded text-[11px] font-semibold hover:bg-[#e4e0ff] transition-colors cursor-pointer"
+                className="ml-0.5 border-0 bg-purple-subtle text-purple px-2 py-1 rounded text-[11px] font-semibold hover:bg-purple-subtle/80 transition-colors cursor-pointer"
                 onClick={handleSetToday}
                 title="Jump to today"
               >
@@ -214,26 +227,25 @@ export function TaskManagement() {
           {/* Day Schedule Type Selector */}
           <button
             type="button"
-            className="inline-flex items-center gap-2 h-[38px] px-3 rounded-lg bg-white border border-slate-200 text-[#2e2c40] text-xs font-semibold hover:bg-[#fbf9ff] hover:border-[#dcd7fa] hover:text-[var(--purple)] shadow-2xs whitespace-nowrap shrink-0 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 h-[38px] px-3 rounded-lg bg-card border border-line text-ink text-xs font-semibold hover:bg-purple-subtle/50 hover:border-purple-border hover:text-purple shadow-2xs whitespace-nowrap shrink-0 transition-all cursor-pointer"
             onClick={() => setShowDayEntryModal(true)}
             title="Click to change schedule (Working Day, Weekend, Holiday, Leave)"
           >
             <span className="grid place-items-center shrink-0">
               {currentDayEntry?.entryType === "WEEKEND" ? (
-                <Sun size={14} className="text-amber-500" />
+                <Sun size={14} className="text-warning" />
               ) : currentDayEntry?.entryType === "PUBLIC_HOLIDAY" ? (
-                <Coffee size={14} className="text-orange-500" />
-              ) : (
-                <Briefcase size={14} className="text-[var(--purple)]" />
+                <Coffee size={14} className="text-warning" />
+              ) : currentDayEntry?.entryType === "PERSONAL_LEAVE" ? (
+                <Palmtree size={14} className="text-warning" />
+              ): (
+                <Briefcase size={14} className="text-purple" />
               )}
             </span>
-            <span className="font-semibold text-[#2b293d]">
+            <span className="font-semibold text-ink">
               {scheduleTypeName}
             </span>
-            {currentDayEntry?.label && (
-              <span className="text-[#7b7891] font-medium text-[11px] bg-[#f4f3f8] px-1.5 py-0.5 rounded">{currentDayEntry.label}</span>
-            )}
-            <ChevronDown size={13} className="text-[#a4a2b3] ml-0.5 shrink-0" />
+            <ChevronDown size={13} className="text-subtle ml-0.5 shrink-0" />
           </button>
 
           {/* New Task Button */}
@@ -252,8 +264,8 @@ export function TaskManagement() {
 
       {/* Weekend or Holiday Alert Notice */}
       {currentDayEntry?.entryType !== "WORKING_DAY" && (
-        <div className="flex items-center gap-3.5 p-3.5 sm:px-4.5 rounded-xl bg-[#fff8f0] border border-[#fde7d4] mb-5">
-          <span className="text-[#e58237] grid place-items-center shrink-0">
+        <div className="flex items-center gap-3.5 p-3.5 sm:px-4.5 rounded-xl bg-warning-bg border border-warning-border mb-5">
+          <span className="text-warning grid place-items-center shrink-0">
             {currentDayEntry?.entryType === "WEEKEND" ? (
               <Sun size={18} />
             ) : currentDayEntry?.entryType === "PUBLIC_HOLIDAY" ? (
@@ -263,11 +275,10 @@ export function TaskManagement() {
             )}
           </span>
           <div className="flex-1 min-w-0">
-            <strong className="block text-[#7c4115] text-sm font-semibold">
+            <strong className="block text-warning text-sm font-semibold">
               Scheduled as {currentDayEntry?.entryType.replace("_", " ")}
-              {currentDayEntry?.label ? ` (${currentDayEntry.label})` : ""}
             </strong>
-            <p className="mt-0.5 text-[#a46a3d] text-xs">
+            <p className="mt-0.5 text-warning/80 text-xs">
               You can still log tasks or start timers, or click to adjust this day&apos;s schedule.
             </p>
           </div>
@@ -282,14 +293,14 @@ export function TaskManagement() {
       )}
 
       {/* Controls & Filter Toolbar */}
-      <section className="flex flex-wrap items-center justify-between gap-4 mb-4.5">
+      <section className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-6 p-3 rounded-xl border border-line bg-card shadow-xs">
         <div className="flex flex-wrap items-center gap-3">
           {/* Search */}
-          <div className="flex items-center gap-2 h-[35px] w-full sm:w-60 border border-slate-200 rounded-lg bg-white px-2.5 shadow-2xs">
-            <Search size={15} className="text-[#9d9bab] shrink-0" />
+          <div className="flex items-center gap-2 h-[35px] w-full sm:w-60 border border-line rounded-lg bg-card px-2.5 shadow-2xs">
+            <Search size={15} className="text-muted shrink-0" />
             <input
               type="text"
-              className="border-0 outline-none bg-transparent text-[var(--ink)] text-xs w-full placeholder:text-[#a4a2b0]"
+              className="border-0 outline-none bg-transparent text-ink text-xs w-full placeholder:text-subtle"
               placeholder="Search tasks or line items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -298,7 +309,7 @@ export function TaskManagement() {
 
           {/* Project Filter */}
           <select
-            className="h-[35px] border border-slate-200 rounded-lg bg-white px-2.5 text-[#4b495d] text-xs font-medium outline-none cursor-pointer shadow-2xs"
+            className="h-[35px] border border-line rounded-lg bg-card px-2.5 text-ink-secondary text-xs font-medium outline-none cursor-pointer shadow-2xs"
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
           >
@@ -311,11 +322,11 @@ export function TaskManagement() {
           </select>
 
           {/* Status Tabs */}
-          <div className="inline-flex bg-slate-200/80 p-0.5 rounded-lg gap-0.5">
+          <div className="inline-flex bg-canvas border border-line/60 p-0.5 rounded-lg gap-0.5">
             <button
               type="button"
               className={`border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                selectedStatus === "ALL" ? "bg-white text-[var(--ink)] shadow-xs" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                selectedStatus === "ALL" ? "bg-card text-ink shadow-xs" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setSelectedStatus("ALL")}
             >
@@ -324,7 +335,7 @@ export function TaskManagement() {
             <button
               type="button"
               className={`border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                selectedStatus === "PENDING" ? "bg-white text-[var(--ink)] shadow-xs" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                selectedStatus === "PENDING" ? "bg-card text-ink shadow-xs" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setSelectedStatus("PENDING")}
             >
@@ -333,7 +344,7 @@ export function TaskManagement() {
             <button
               type="button"
               className={`border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                selectedStatus === "IN_PROGRESS" ? "bg-white text-[var(--ink)] shadow-xs" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                selectedStatus === "IN_PROGRESS" ? "bg-card text-ink shadow-xs" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setSelectedStatus("IN_PROGRESS")}
             >
@@ -342,7 +353,7 @@ export function TaskManagement() {
             <button
               type="button"
               className={`border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                selectedStatus === "COMPLETED" ? "bg-white text-[var(--ink)] shadow-xs" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                selectedStatus === "COMPLETED" ? "bg-card text-ink shadow-xs" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setSelectedStatus("COMPLETED")}
             >
@@ -352,29 +363,37 @@ export function TaskManagement() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-xs font-semibold text-muted hover:text-ink hover:bg-canvas transition-colors cursor-pointer"
+            >
+              <X size={14} />
+              Clear filters
+            </button>
+          )}
           {/* View switcher */}
-          <div className="inline-flex bg-white border border-slate-200 p-0.5 rounded-lg gap-0.5 shadow-2xs">
+          <div className="inline-flex bg-card border border-line p-0.5 rounded-lg gap-0.5 shadow-2xs">
             <button
               type="button"
               className={`inline-flex items-center gap-1.5 border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                viewMode === "list" ? "bg-[#f1efff] text-[var(--purple)]" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                viewMode === "list" ? "bg-purple-subtle text-purple" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setViewMode("list")}
               title="Grouped List View"
             >
-              <List size={15} />
-              <span>List</span>
+              <List size={18} />
             </button>
             <button
               type="button"
               className={`inline-flex items-center gap-1.5 border-0 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all ${
-                viewMode === "kanban" ? "bg-[#f1efff] text-[var(--purple)]" : "bg-transparent text-[#7b798e] hover:text-[var(--ink)]"
+                viewMode === "kanban" ? "bg-purple-subtle text-purple" : "bg-transparent text-muted hover:text-ink"
               }`}
               onClick={() => setViewMode("kanban")}
               title="Kanban Board View"
             >
-              <Columns size={15} />
-              <span>Kanban</span>
+              <Columns size={18} />
             </button>
           </div>
         </div>

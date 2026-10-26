@@ -171,39 +171,39 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             {activeTimer && (
               <Link
                 href="/tasks"
-                className="group inline-flex items-center gap-2 h-[34px] pl-2.5 pr-2.5 rounded-full bg-[#f8f6fe] border border-[#ded9fa] hover:border-[var(--purple)] hover:bg-[#f1edfe] shadow-2xs transition-all cursor-pointer"
+                className="group inline-flex items-center gap-2 h-[34px] pl-2.5 pr-2.5 rounded-full bg-purple-subtle/50 border border-purple-border hover:border-purple hover:bg-purple-subtle shadow-2xs transition-all cursor-pointer"
                 title={`Tracking: ${activeTimer.itemDescription} (${activeTimer.taskName}) — Click to manage`}
               >
                 {/* Live beacon */}
                 <span className="relative flex h-2 w-2 shrink-0">
                   {activeTimer.isRunning && (
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--purple)] opacity-75" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple opacity-75" />
                   )}
                   <span
                     className={`relative inline-flex rounded-full h-2 w-2 ${
                       activeTimer.isRunning
-                        ? "bg-[var(--purple)]"
-                        : "bg-amber-500"
+                        ? "bg-purple"
+                        : "bg-warning"
                     }`}
                   />
                 </span>
 
                 {/* Digital monospace clock */}
-                <span className="font-mono text-xs font-bold text-[var(--purple)] tracking-tight">
+                <span className="font-mono text-xs font-bold text-purple tracking-tight">
                   {timerDisplay}
                 </span>
 
-                <span className="text-[#cfcbe4] text-xs">·</span>
+                <span className="text-subtle text-xs">·</span>
 
                 {/* Task name */}
-                <span className="max-w-[120px] sm:max-w-[170px] truncate text-xs font-semibold text-[var(--ink-secondary)] group-hover:text-[var(--ink)] transition-colors">
+                <span className="max-w-[120px] sm:max-w-[170px] truncate text-xs font-semibold text-ink-secondary group-hover:text-ink transition-colors">
                   {activeTimer.taskName}
                 </span>
 
                 {/* Interactive chevron indicator */}
                 <ChevronRight
                   size={13}
-                  className="text-[#aaa7c0] group-hover:text-[var(--purple)] group-hover:translate-x-0.5 transition-all shrink-0"
+                  className="text-subtle group-hover:text-purple group-hover:translate-x-0.5 transition-all shrink-0"
                 />
               </Link>
             )}

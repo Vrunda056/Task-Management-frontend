@@ -40,21 +40,21 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
   }
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white shadow-2xs overflow-hidden hover:border-slate-300 transition-colors">
+    <article className="rounded-xl border border-line bg-card shadow-2xs overflow-hidden hover:border-line transition-colors">
       {/* Distinct Structural Header Container */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-slate-50/75 border-b border-slate-200">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-canvas/40 border-b border-line">
         <div className="grid gap-1">
-          <div className="inline-flex items-center gap-1.5 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--purple)]" />
+          <div className="inline-flex items-center gap-1.5 text-muted text-[11px] font-bold uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple" />
             <span>{task.project?.name || "Project"}</span>
           </div>
-          <h3 className="m-0 text-[#2b293d] text-base font-semibold tracking-tight">{task.taskName}</h3>
+          <h3 className="m-0 text-ink text-base font-semibold tracking-tight">{task.taskName}</h3>
         </div>
 
         <div className="flex items-center gap-3.5">
-          <div className="flex items-center gap-3 text-slate-500 text-xs font-medium">
+          <div className="flex items-center gap-3 text-muted text-xs font-medium">
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 size={13} className="text-emerald-600" />
+              <CheckCircle2 size={13} className="text-success" />
               {completedItems} of {totalItems} completed
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -65,7 +65,7 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
 
           <button
             type="button"
-            className="grid place-items-center w-7.5 h-7.5 rounded-md border border-slate-200 bg-white text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
+            className="grid place-items-center w-7.5 h-7.5 rounded-md border border-line bg-card text-muted hover:bg-danger-bg hover:text-danger hover:border-danger-border transition-colors cursor-pointer"
             onClick={() => {
               if (window.confirm(`Delete task "${task.taskName}" and all its items?`)) {
                 deleteTask(task.id);
@@ -79,12 +79,12 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
       </div>
 
       {/* Crisp Section Divider & Progress Indicator */}
-      <div className="w-full h-1 bg-slate-100 border-b border-slate-200">
-        <div className="h-full bg-[var(--purple)] transition-all duration-300" style={{ width: `${percent}%` }} />
+      <div className="w-full h-1 bg-canvas border-b border-line">
+        <div className="h-full bg-purple transition-all duration-300" style={{ width: `${percent}%` }} />
       </div>
 
       {/* Task Line Items */}
-      <div className="grid divide-y divide-slate-100 p-2 sm:p-3 gap-2">
+      <div className="grid divide-y divide-line/60 p-2 sm:p-3 gap-2">
         {task.items.map((item) => (
           <TaskItemRow
             key={item.id}
@@ -95,14 +95,14 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
         ))}
 
         {task.items.length === 0 && (
-          <div className="py-6 text-center text-[#999] text-xs">
+          <div className="py-6 text-center text-muted text-xs">
             <p className="m-0">No line items in this task yet.</p>
           </div>
         )}
       </div>
 
       {/* Inline Add Item Form or Button */}
-      <div className="px-5 py-2.5 bg-[#fafafc] border-t border-[#f4f3f6]">
+      <div className="px-5 py-2.5 bg-canvas/30 border-t border-line">
         {isAddingItem ? (
           <form className="flex flex-wrap items-center gap-2" onSubmit={handleCreateItem}>
             <input
@@ -124,7 +124,7 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
                 value={newItemEst}
                 onChange={(e) => setNewItemEst(e.target.value)}
               />
-              <span className="text-xs text-[#8e8ca0]">min</span>
+              <span className="text-xs text-muted">min</span>
             </div>
             <button type="submit" className="btn btn-primary text-xs px-3 py-1.5 h-auto">
               Add
@@ -140,7 +140,7 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
         ) : (
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 border-0 bg-transparent text-[#8f8ea1] hover:text-[var(--purple)] text-xs font-semibold cursor-pointer py-1 px-1.5 rounded transition-colors"
+            className="inline-flex items-center gap-1.5 border-0 bg-transparent text-muted hover:text-purple text-xs font-semibold cursor-pointer py-1 px-1.5 rounded transition-colors"
             onClick={() => setIsAddingItem(true)}
           >
             <Plus size={14} />

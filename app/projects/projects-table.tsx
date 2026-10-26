@@ -97,26 +97,16 @@ export function ProjectsTable({
   isDeleting,
 }: ProjectsTableProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+    <div className="table-container">
       <div className="overflow-x-auto">
-        <table className="projects-table w-full text-left border-collapse">
-          <thead className="bg-white border-b border-slate-200">
+        <table className="projects-table">
+          <thead>
             <tr>
-              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-                Project Name
-              </th>
-              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-                Description
-              </th>
-              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-                Owner
-              </th>
-              <th className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-                Created
-              </th>
-              <th className="px-5 py-3.5 text-right text-[11px] font-medium text-slate-500 uppercase tracking-wider actions-col">
-                Actions
-              </th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Owner</th>
+              <th>Created</th>
+              <th className="actions-col">Actions</th>
             </tr>
           </thead>
         <tbody>
@@ -179,20 +169,16 @@ export function ProjectsTable({
                     className="action-btn action-edit"
                     onClick={() => onEdit(project)}
                     title="Edit project"
-                    type="button"
                   >
-                    <Pencil className="w-4 h-4 text-black-500" />
-                    Edit
+                    <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     className="action-btn action-delete"
                     disabled={isDeleting}
                     onClick={() => onDelete(project)}
                     title="Delete project"
-                    type="button"
                   >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                    Delete
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </td>

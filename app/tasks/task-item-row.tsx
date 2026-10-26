@@ -69,25 +69,25 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
   return (
     <div
       className={`flex items-center justify-between gap-4 p-3.5 sm:px-5 transition-colors ${
-        item.status === "COMPLETED" ? "bg-[#fafbfa]" : "hover:bg-[#fdfdfd]"
-      } ${isRunning ? "bg-[#fbf9ff] border-l-[3px] border-l-[var(--purple)]" : ""}`}
+        item.status === "COMPLETED" ? "bg-canvas/30" : "hover:bg-canvas/40"
+      } ${isRunning ? "bg-purple-subtle/50 border-l-[3px] border-l-purple" : ""}`}
     >
       <div className="flex items-start gap-3 flex-1 min-w-0">
         <button
           type="button"
-          className="border-0 bg-transparent p-0 cursor-pointer text-[#b5b3c3] grid place-items-center mt-0.5 hover:text-[var(--purple)] transition-colors"
+          className="border-0 bg-transparent p-0 cursor-pointer text-subtle grid place-items-center mt-0.5 hover:text-purple transition-colors"
           onClick={handleToggleStatus}
           title={`Status: ${item.status}. Click to cycle.`}
         >
           {item.status === "COMPLETED" ? (
-            <CheckCircle2 size={18} className="text-emerald-500!" />
+            <CheckCircle2 size={18} className="text-success" />
           ) : (
             <Circle size={18} />
           )}
         </button>
 
         <div className="flex-1 min-w-0">
-          <p className={`m-0 text-[#3b394f] text-sm font-medium leading-snug ${item.status === "COMPLETED" ? "line-through text-[#9e9caa]" : ""}`}>
+          <p className={`m-0 text-ink-secondary text-sm font-medium leading-snug ${item.status === "COMPLETED" ? "line-through text-muted" : ""}`}>
             {item.description}
           </p>
 
@@ -107,9 +107,9 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
 
             {/* Estimated time */}
             {item.estimatedTimeMin !== null && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#f4f3f8] border border-[#e5e3ec] text-[#636077] text-[11px] font-mono font-medium shadow-2xs">
-                <Clock size={11} className="text-[#88859e]" />
-                <span>Est: <strong className="font-semibold text-[#201e33]">{item.estimatedTimeMin}m</strong></span>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-canvas border border-line text-ink-secondary text-[11px] font-mono font-medium shadow-2xs">
+                <Clock size={11} className="text-muted" />
+                <span>Est: <strong className="font-semibold text-ink">{item.estimatedTimeMin}m</strong></span>
               </span>
             )}
 
@@ -118,18 +118,18 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
               <span
                 className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium shadow-2xs border ${
                   hasBoth && diff > 0
-                    ? "bg-[#fff2f2] border-[#fecdd3] text-[#b91c1c]"
-                    : "bg-[#f5f2fe] border-[#ded7fb] text-[var(--purple)]"
+                    ? "bg-danger-bg border-danger-border text-danger"
+                    : "bg-purple-subtle border-purple-border text-purple"
                 }`}
               >
-                <Timer size={11} className={hasBoth && diff > 0 ? "text-[#dc2626]" : "text-[var(--purple)]"} />
-                <span>Act: <strong className={`font-semibold ${hasBoth && diff > 0 ? "text-[#991b1b]" : "text-[#4d3abf]"}`}>{item.actualEffortMin}m</strong></span>
+                <Timer size={11} className={hasBoth && diff > 0 ? "text-danger" : "text-purple"} />
+                <span>Act: <strong className={`font-semibold ${hasBoth && diff > 0 ? "text-danger" : "text-purple"}`}>{item.actualEffortMin}m</strong></span>
                 {hasBoth && diff !== 0 && (
                   <span
-                    className={`px-1 rounded text-[9px] font-bold ${
+                    className={`px-1 rounded text-[9px] font-bold border ${
                       diff > 0
-                        ? "bg-[#fee2e2] text-[#991b1b]"
-                        : "bg-[#eaf9f0] text-[#065f46]"
+                        ? "bg-danger-bg text-danger border-danger-border"
+                        : "bg-success-bg text-success border-success-border"
                     }`}
                   >
                     {diff > 0 ? `+${diff}m` : `${diff}m`}
@@ -141,7 +141,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
             {/* Note badge */}
             {item.note && !isEditingNote && (
               <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#fffbeb] border border-[#fef3c7] text-[#b45309] text-xs cursor-pointer max-w-[260px]"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning-bg border border-warning-border text-warning text-xs cursor-pointer max-w-[260px]"
                 onClick={() => setIsEditingNote(true)}
                 title="Click to view/edit note"
               >
@@ -156,7 +156,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
             <div className="flex items-center gap-2 mt-2">
               <input
                 type="text"
-                className="flex-1 h-7.5 border border-[#dcd9e9] rounded-md px-2.5 text-xs text-[var(--ink)] outline-none"
+                className="flex-1 h-7.5 border border-line rounded-md px-2.5 text-xs text-ink outline-none focus:border-purple"
                 placeholder="Add note or explanation for delay..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
@@ -168,14 +168,14 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
               />
               <button
                 type="button"
-                className="h-7.5 px-2.5 border-0 bg-[var(--purple)] text-white rounded-md text-xs font-semibold cursor-pointer"
+                className="h-7.5 px-2.5 border-0 bg-purple hover:bg-purple-hover text-white rounded-md text-xs font-semibold cursor-pointer transition-colors"
                 onClick={handleSaveNote}
               >
                 Save
               </button>
               <button
                 type="button"
-                className="h-7.5 px-2.5 border border-[#dedde6] bg-white text-[#666] rounded-md text-xs cursor-pointer"
+                className="h-7.5 px-2.5 border border-line bg-card text-muted hover:text-ink rounded-md text-xs cursor-pointer transition-colors"
                 onClick={() => setIsEditingNote(false)}
               >
                 Cancel
@@ -191,8 +191,8 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
           type="button"
           className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-semibold cursor-pointer transition-all ${
             isRunning
-              ? "bg-amber-200 border border-amber-300 text-amber-900"
-              : "bg-[#f5f3ff] border border-[#e0d9fc] text-[var(--purple)] hover:bg-[#ede9fe]"
+              ? "bg-warning-bg border border-warning-border text-warning"
+              : "bg-purple-subtle border border-purple-border text-purple hover:bg-purple-subtle/80"
           }`}
           onClick={handleQuickTimerClick}
           title={isRunning ? "Pause Live Timer" : "Start Live Timer"}
@@ -213,7 +213,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
         {/* Set Target Timer / Manual Log */}
         <button
           type="button"
-          className="grid place-items-center w-7.5 h-7.5 border border-[#ecebf1] rounded-md bg-white text-[#77768a] hover:bg-[#f7f6fb] hover:text-[var(--purple)] hover:border-[#dcd7fa] transition-colors cursor-pointer"
+          className="grid place-items-center w-7.5 h-7.5 border border-line rounded-md bg-card text-muted hover:bg-purple-subtle/40 hover:text-purple hover:border-purple-border transition-colors cursor-pointer"
           onClick={() => onOpenTimerModal(task, item)}
           title="Timer presets & manual effort logging"
         >
@@ -224,7 +224,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
         {!item.note && (
           <button
             type="button"
-            className="grid place-items-center w-7.5 h-7.5 border border-[#ecebf1] rounded-md bg-white text-[#77768a] hover:bg-[#f7f6fb] hover:text-[var(--purple)] hover:border-[#dcd7fa] transition-colors cursor-pointer"
+            className="grid place-items-center w-7.5 h-7.5 border border-line rounded-md bg-card text-muted hover:bg-purple-subtle/40 hover:text-purple hover:border-purple-border transition-colors cursor-pointer"
             onClick={() => setIsEditingNote(true)}
             title="Add delay explanation / note"
           >
@@ -235,7 +235,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
         {/* Delete */}
         <button
           type="button"
-          className="grid place-items-center w-7.5 h-7.5 border border-[#ecebf1] rounded-md bg-white text-[#77768a] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
+          className="grid place-items-center w-7.5 h-7.5 border border-line rounded-md bg-card text-muted hover:bg-danger-bg hover:text-danger hover:border-danger-border transition-colors cursor-pointer"
           onClick={() => {
             if (window.confirm("Remove this item?")) {
               deleteTaskItem(item.id);
