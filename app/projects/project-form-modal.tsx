@@ -11,6 +11,8 @@ import {
   useUpdateProject,
 } from "@/lib/projects/use-project";
 import { useUsers } from "@/lib/users/use-user";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 
 interface ProjectFormModalProps {
   project?: ProjectResponse;
@@ -39,13 +41,13 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
       });
       if (!result.success) {
         setValidationError(
-          result.error.issues[0]?.message ?? "Please check the form fields."
+          result.error.issues[0]?.message ?? "Please check the form fields.",
         );
         return;
       }
       updateMutation.mutate(
         { id: project.id, input: result.data },
-        { onSuccess: onClose }
+        { onSuccess: onClose },
       );
       return;
     }
@@ -57,7 +59,7 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
     });
     if (!result.success) {
       setValidationError(
-        result.error.issues[0]?.message ?? "Please check the form fields."
+        result.error.issues[0]?.message ?? "Please check the form fields.",
       );
       return;
     }
@@ -65,21 +67,12 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{project ? "Edit Project" : "Create New Project"}</h2>
-          <button
-            className="modal-close"
-            onClick={onClose}
-            type="button"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form className="modal-body" onSubmit={handleSubmit}>
+    <Modal
+      onClose={onClose}
+      title={project ? "Edit Project" : "Create New Project"}
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="p-6">
           <div className="modal-form-grid">
             <label className="modal-field">
               <span className="modal-label">
@@ -139,31 +132,23 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
               {validationError || mutation.error?.message}
             </div>
           )}
+        </div>
 
-          <div className="modal-footer">
-            <button
-              className="btn btn-secondary"
-              onClick={onClose}
-              type="button"
-            >
-              Cancel
-            </button>
-            <button
-              className="btn btn-primary"
-              disabled={mutation.isPending}
-              type="submit"
-            >
-              {mutation.isPending
-                ? project
-                  ? "Saving..."
-                  : "Creating..."
-                : project
-                  ? "Save Changes"
-                  : "Create Project"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit" loading={mutation.isPending}>
+            {mutation.isPending
+              ? project
+                ? "Saving..."
+                : "Creating..."
+              : project
+                ? "Save Changes"
+                : "Create Project"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

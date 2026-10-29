@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useProjects } from "@/lib/projects/use-project";
 import { useAuth } from "@/lib/auth/auth-context";
+import { KpiCard, StatusBadge, type BadgeVariant } from "@/components/ui";
 
 const tasks = [
   {
@@ -12,7 +13,7 @@ const tasks = [
     color: "lavender",
     due: "Today",
     status: "In progress",
-    statusColor: "blue",
+    statusColor: "blue" as BadgeVariant,
   },
   {
     title: "Review Q4 campaign brief",
@@ -21,7 +22,7 @@ const tasks = [
     color: "peach",
     due: "Today",
     status: "In review",
-    statusColor: "amber",
+    statusColor: "amber" as BadgeVariant,
   },
   {
     title: "Update component library",
@@ -30,7 +31,7 @@ const tasks = [
     color: "mint",
     due: "Tomorrow",
     status: "To do",
-    statusColor: "gray",
+    statusColor: "gray" as BadgeVariant,
   },
   {
     title: "Prepare sprint retrospective",
@@ -39,7 +40,7 @@ const tasks = [
     color: "sky",
     due: "Oct 18",
     status: "To do",
-    statusColor: "gray",
+    statusColor: "gray" as BadgeVariant,
   },
 ];
 
@@ -58,26 +59,10 @@ export default function Home() {
       </section>
 
       <section aria-label="Workspace overview" className="stats-grid">
-        <article className="stat-card">
-          <div className="stat-top"><span className="stat-icon violet-icon">▣</span><span className="stat-trend positive">↗ 12%</span></div>
-          <p className="stat-label">Total tasks</p><p className="stat-value">48</p>
-          <p className="stat-footnote">Compared to last month</p>
-        </article>
-        <article className="stat-card">
-          <div className="stat-top"><span className="stat-icon blue-icon">◷</span><span className="stat-trend positive">↗ 8%</span></div>
-          <p className="stat-label">In progress</p><p className="stat-value">18</p>
-          <p className="stat-footnote">Across 6 active projects</p>
-        </article>
-        <article className="stat-card">
-          <div className="stat-top"><span className="stat-icon green-icon">✓</span><span className="stat-trend positive">↗ 24%</span></div>
-          <p className="stat-label">Completed</p><p className="stat-value">26</p>
-          <p className="stat-footnote">You&apos;re on a great streak</p>
-        </article>
-        <article className="stat-card">
-          <div className="stat-top"><span className="stat-icon orange-icon">⚑</span><span className="stat-trend neutral">This week</span></div>
-          <p className="stat-label">Due soon</p><p className="stat-value">4</p>
-          <p className="stat-footnote">Keep your projects moving</p>
-        </article>
+        <KpiCard icon={<span>▣</span>} iconVariant="violet" label="Total tasks" value="48" trend={{ text: "↗ 12%", type: "positive" }} footnote="Compared to last month" />
+        <KpiCard icon={<span>◷</span>} iconVariant="blue" label="In progress" value="18" trend={{ text: "↗ 8%", type: "positive" }} footnote="Across 6 active projects" />
+        <KpiCard icon={<span>✓</span>} iconVariant="green" label="Completed" value="26" trend={{ text: "↗ 24%", type: "positive" }} footnote="You&apos;re on a great streak" />
+        <KpiCard icon={<span>⚑</span>} iconVariant="orange" label="Due soon" value="4" trend={{ text: "This week", type: "neutral" }} footnote="Keep your projects moving" />
       </section>
 
       <div className="dashboard-grid">
@@ -95,7 +80,7 @@ export default function Home() {
                     <td><span className="task-check" aria-hidden="true" /><span className="task-name">{task.title}<small>{task.project}</small></span></td>
                     <td><span className={`avatar avatar-${task.color}`}>{task.initials}</span></td>
                     <td className="due-date">{task.due}</td>
-                    <td><span className={`status-pill status-${task.statusColor}`}>{task.status}</span></td>
+                    <td><StatusBadge variant={task.statusColor}>{task.status}</StatusBadge></td>
                   </tr>
                 ))}
               </tbody>

@@ -1,9 +1,13 @@
 "use client";
 
 import { useId, useRef, useState, type FocusEvent, type MouseEvent } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Calendar, Pencil, Trash2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import type { ProjectResponse } from "@/lib/projects/project.schema";
+import { Avatar } from "@/components/ui/avatar";
+import { ActionButton } from "@/components/ui/button";
+import { DataTable, type Column } from "@/components/ui/data-table";
+import { formatMemberDate } from "../users/user-utils";
 
 const DESCRIPTION_ICON_THRESHOLD = 100;
 
@@ -98,99 +102,98 @@ export function ProjectsTable({
   isDeleting,
   canManage,
 }: ProjectsTableProps) {
+  const columns: Column<ProjectResponse>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (project) => (
+        <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <span>{project.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "description",
+      header: "Description",
+      render: (project) => (
+        <div className="flex max-w-[430px] items-center gap-2">
+          <div className="project-description text-ink-secondary">
+            {project.description || (
+              <span className="no-description">No description</span>
+            )}
+          </div>
+          {project.description &&
+            project.description.length > DESCRIPTION_ICON_THRESHOLD && (
+              <DescriptionPreview description={project.description} />
+            )}
+        </div>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      render: (project) => (
+        <div className="flex items-center gap-2.5">
+          {project.createdBy ? (
+            <>
+              <Avatar
+                name={project.createdBy.name}
+                size="md"
+                className="!h-8 !w-8 !bg-[#f1efff] !text-purple shadow-2xs"
+              />
+              <div className="grid min-w-0 gap-0.5">
+                <div className="text-sm font-medium text-ink">
+                  {project.createdBy.name}
+                </div>
+                <div className="text-xs text-muted">
+                  {project.createdBy.position}
+                </div>
+              </div>
+            </>
+          ) : (
+            <span className="text-xs italic text-muted">No owner</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "created",
+      header: "Created",
+      render: (project) => (
+        <div className="flex items-center gap-1.5 text-xs font-medium text-ink-secondary">
+          <Calendar className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <span>{formatMemberDate(project.createdAt)}</span>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="table-container">
-      <div className="overflow-x-auto">
-        <table className="projects-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Owner</th>
-              <th>Created</th>
-              {canManage && <th className="actions-col">Actions</th>}
-            </tr>
-          </thead>
-        <tbody>
-          {projects.map((project) => (
-            <tr key={project.id}>
-              <td>
-                <div className="project-name">{project.name}</div>
-              </td>
-              <td>
-                <div className="project-description-cell">
-                  <div className="project-description">
-                    {project.description || (
-                      <span className="no-description">No description</span>
-                    )}
-                  </div>
-                  {project.description &&
-                    project.description.length > DESCRIPTION_ICON_THRESHOLD && (
-                      <DescriptionPreview description={project.description} />
-                    )}
-                </div>
-              </td>
-              <td>
-                <div className="project-owner">
-                  {project.createdBy ? (
-                    <>
-                      <span className="owner-avatar">
-                        {project.createdBy.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </span>
-                      <div className="owner-info">
-                        <div className="owner-name">
-                          {project.createdBy.name}
-                        </div>
-                        <div className="owner-position">
-                          {project.createdBy.position}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <span className="no-owner">No owner</span>
-                  )}
-                </div>
-              </td>
-              <td>
-                <div className="project-date">
-                  {new Date(project.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </div>
-              </td>
-              {canManage && (
-                <td>
-                  <div className="table-actions">
-                    <button
-                      className="action-btn action-edit"
-                      onClick={() => onEdit(project)}
-                      title="Edit project"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="action-btn action-delete"
-                      disabled={isDeleting}
-                      onClick={() => onDelete(project)}
-                      title="Delete project"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-    </div>
+    <DataTable
+      columns={columns}
+      data={projects}
+      rowKey={(project) => project.id}
+      actions={
+        canManage
+          ? (project) => (
+            <>
+              <ActionButton
+                icon={<Pencil className="h-4 w-4" />}
+                variant="edit"
+                onClick={() => onEdit(project)}
+                title="Edit project"
+              />
+              <ActionButton
+                icon={<Trash2 className="h-4 w-4" />}
+                variant="delete"
+                disabled={isDeleting}
+                onClick={() => onDelete(project)}
+                title="Delete project"
+              />
+            </>
+          )
+          : undefined
+      }
+    />
   );
 }

@@ -9,6 +9,9 @@ import {
   RotateCcw,
   CheckCircle,
 } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 export function ActiveTimerBanner() {
   const {
@@ -216,71 +219,58 @@ export function ActiveTimerBanner() {
 
       {/* Stop & Save Modal */}
       {showSaveNote && (
-        <div className="modal-overlay" onClick={handleCancelStop}>
-          <div className="modal-container max-w-[440px]!" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{markCompleteOnStop ? "Complete Task & Save Time" : "Save Tracked Time"}</h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={handleCancelStop}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="grid gap-2 p-3 sm:px-4 bg-[#fafafc] rounded-lg border border-[#eeedf3] mb-4">
-                <div className="flex items-center justify-between text-xs text-[#69677b]">
-                  <span>Tracked Effort:</span>
-                  <strong className="text-[var(--ink)] font-bold">{elapsedMinutes} minutes</strong>
-                </div>
-                {estimatedMin > 0 && (
-                  <div className="flex items-center justify-between text-xs text-[#69677b]">
-                    <span>Initial Estimate:</span>
-                    <strong className="text-[var(--ink)] font-bold">{estimatedMin} minutes</strong>
-                  </div>
-                )}
-                <div className="flex items-center justify-between text-xs text-[#69677b]">
-                  <span>Status will be:</span>
-                  <span className={`status-pill ${markCompleteOnStop ? "status-green" : "status-blue"}`}>
-                    {markCompleteOnStop ? "COMPLETED" : "IN_PROGRESS"}
-                  </span>
-                </div>
+        <Modal
+          onClose={handleCancelStop}
+          title={markCompleteOnStop ? "Complete Task & Save Time" : "Save Tracked Time"}
+          maxWidth="max-w-[440px]"
+        >
+          <div className="p-6">
+            <div className="mb-4 grid gap-2 rounded-lg border border-[#eeedf3] bg-[#fafafc] p-3 sm:px-4">
+              <div className="flex items-center justify-between text-xs text-[#69677b]">
+                <span>Tracked Effort:</span>
+                <strong className="font-bold text-[var(--ink)]">{elapsedMinutes} minutes</strong>
               </div>
-
-              <label className="modal-field">
-                <span className="modal-label">
-                  Delay Note / Completion Note <span className="optional">(Optional)</span>
-                </span>
-                <textarea
-                  className="modal-input modal-textarea"
-                  rows={3}
-                  placeholder={
-                    isOvertime
-                      ? "Explain any unexpected delays or blockers..."
-                      : "Add a note regarding what was accomplished..."
-                  }
-                  value={saveNote}
-                  onChange={(e) => setSaveNote(e.target.value)}
-                />
-              </label>
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={handleCancelStop}>
-                  Continue Timing
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleConfirmStop}
-                >
-                  Confirm & Save {elapsedMinutes}m
-                </button>
+              {estimatedMin > 0 && (
+                <div className="flex items-center justify-between text-xs text-[#69677b]">
+                  <span>Initial Estimate:</span>
+                  <strong className="font-bold text-[var(--ink)]">{estimatedMin} minutes</strong>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs text-[#69677b]">
+                <span>Status will be:</span>
+                <StatusBadge variant={markCompleteOnStop ? "green" : "blue"}>
+                  {markCompleteOnStop ? "COMPLETED" : "IN_PROGRESS"}
+                </StatusBadge>
               </div>
             </div>
+
+            <label className="modal-field">
+              <span className="modal-label">
+                Delay Note / Completion Note <span className="optional">(Optional)</span>
+              </span>
+              <textarea
+                className="modal-input modal-textarea"
+                rows={3}
+                placeholder={
+                  isOvertime
+                    ? "Explain any unexpected delays or blockers..."
+                    : "Add a note regarding what was accomplished..."
+                }
+                value={saveNote}
+                onChange={(e) => setSaveNote(e.target.value)}
+              />
+            </label>
           </div>
-        </div>
+
+          <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+            <Button variant="secondary" onClick={handleCancelStop}>
+              Continue Timing
+            </Button>
+            <Button variant="primary" onClick={handleConfirmStop}>
+              Confirm & Save {elapsedMinutes}m
+            </Button>
+          </div>
+        </Modal>
       )}
     </>
   );

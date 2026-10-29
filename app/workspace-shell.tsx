@@ -54,7 +54,7 @@ function SidebarLink({
         className="nav-link nav-link-disabled"
         title={collapsed ? `${label} is coming soon` : undefined}
       >
-        <Icon size={18} strokeWidth={1.8} />
+        <Icon size={20} strokeWidth={1.8} />
         <span className="nav-link-label">{label}</span>
         <span className="coming-soon">Soon</span>
       </span>
@@ -70,7 +70,7 @@ function SidebarLink({
       href={href}
       title={collapsed ? label : undefined}
     >
-      <Icon size={18} strokeWidth={1.8} />
+      <Icon size={20} strokeWidth={1.8} />
       <span className="nav-link-label">{label}</span>
     </Link>
   );
@@ -276,16 +276,16 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             {activeTimer && (
               <Link
                 href="/tasks"
-                className="group inline-flex items-center gap-2 h-[34px] pl-2.5 pr-2.5 rounded-full bg-purple-subtle/50 border border-purple-border hover:border-purple hover:bg-purple-subtle shadow-2xs transition-all cursor-pointer"
+                className="group inline-flex items-center gap-2 h-[36px] pl-3 pr-3 rounded-full bg-purple-subtle/50 border border-purple-border hover:border-purple hover:bg-purple-subtle shadow-2xs transition-all cursor-pointer"
                 title={`Tracking: ${activeTimer.itemDescription} (${activeTimer.taskName}) — Click to manage`}
               >
                 {/* Live beacon */}
-                <span className="relative flex h-2 w-2 shrink-0">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
                   {activeTimer.isRunning && (
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple opacity-75" />
                   )}
                   <span
-                    className={`relative inline-flex rounded-full h-2 w-2 ${
+                    className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
                       activeTimer.isRunning
                         ? "bg-purple"
                         : "bg-warning"
@@ -294,26 +294,26 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
                 </span>
 
                 {/* Digital monospace clock */}
-                <span className="font-mono text-xs font-bold text-purple tracking-tight">
+                <span className="font-mono text-sm font-bold text-purple tracking-tight">
                   {timerDisplay}
                 </span>
 
                 <span className="text-subtle text-xs">·</span>
 
                 {/* Task name */}
-                <span className="max-w-[120px] sm:max-w-[170px] truncate text-xs font-semibold text-ink-secondary group-hover:text-ink transition-colors">
+                <span className="max-w-[140px] sm:max-w-[200px] truncate text-xs sm:text-sm font-medium text-ink-secondary group-hover:text-ink transition-colors">
                   {activeTimer.taskName}
                 </span>
 
                 {/* Interactive chevron indicator */}
                 <ChevronRight
-                  size={13}
+                  size={14}
                   className="text-subtle group-hover:text-purple group-hover:translate-x-0.5 transition-all shrink-0"
                 />
               </Link>
             )}
             <label className="search-box">
-              <Search size={16} strokeWidth={1.8} />
+              <Search size={17} strokeWidth={1.8} />
               <input aria-label="Search" placeholder="Search anything..." />
               <kbd>⌘ K</kbd>
             </label>
@@ -322,7 +322,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
               className="icon-button"
               type="button"
             >
-              <Bell size={18} strokeWidth={1.8} />
+              <Bell size={20} strokeWidth={1.8} />
               <span className="notification-dot" />
             </button>
             <span className="topbar-divider" />

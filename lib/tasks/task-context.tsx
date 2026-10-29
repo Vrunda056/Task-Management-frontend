@@ -31,9 +31,10 @@ function getTodayDateString(): string {
 }
 
 function createDefaultSeedEntries(todayDate: string): DayEntry[] {
+  const dayId = `day-${todayDate}`;
   return [
     {
-      id: "day-today",
+      id: dayId,
       date: todayDate,
       entryType: "WORKING_DAY",
       userId: "user-default-1",
@@ -43,7 +44,7 @@ function createDefaultSeedEntries(todayDate: string): DayEntry[] {
         {
           id: "task-1",
           taskName: "Core Analytics Changes",
-          dayEntryId: "day-today",
+          dayEntryId: dayId,
           projectId: "project-1",
           project: {
             id: "project-1",
@@ -91,7 +92,7 @@ function createDefaultSeedEntries(todayDate: string): DayEntry[] {
         {
           id: "task-2",
           taskName: "DEV Server & CI Pipeline",
-          dayEntryId: "day-today",
+          dayEntryId: dayId,
           projectId: "project-2",
           project: {
             id: "project-2",
@@ -185,11 +186,26 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 function getStoredEntries(): DayEntry[] {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_ENTRIES);
+    const today = getTodayDateString();
+    const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY_ENTRIES) : null;
     if (stored) {
-      return JSON.parse(stored);
+      const parsed: DayEntry[] = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const todayEntry = parsed.find((e) => e.date === today);
+        if (todayEntry && Array.isArray(todayEntry.tasks) && todayEntry.tasks.length > 0) {
+          return parsed;
+        }
+        // Ensure today is populated with seed tasks
+        const defaultSeeds = createDefaultSeedEntries(today);
+        if (!todayEntry) {
+          return [...defaultSeeds, ...parsed];
+        }
+        return parsed.map((e) =>
+          e.date === today ? { ...e, tasks: defaultSeeds[0].tasks } : e
+        );
+      }
     }
-    return createDefaultSeedEntries(getTodayDateString());
+    return createDefaultSeedEntries(today);
   } catch (error) {
     console.error("Failed to load entries from localStorage", error);
     return createDefaultSeedEntries(getTodayDateString());
@@ -325,7 +341,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   // Current DayEntry
   const currentDayEntry = useMemo(() => {
     const found = entries.find((e) => e.date === selectedDate);
-    if (found) return found;
+    if (found && Array.isArray(found.tasks) && found.tasks.length > 0) return found;
+
+    const todayStr = getTodayDateString();
+    if (selectedDate === todayStr) {
+      const todaySeed = createDefaultSeedEntries(todayStr)[0];
+      if (found) {
+        return { ...found, tasks: todaySeed.tasks };
+      }
+      return todaySeed;
+    }
 
     // Return a virtual entry if not saved yet
     const now = new Date();
@@ -333,15 +358,18 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     const dayOfWeek = selDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-    return {
-      id: `day-${selectedDate}`,
-      date: selectedDate,
-      entryType: isWeekend ? "WEEKEND" : "WORKING_DAY",
-      userId: "user-default-1",
-      tasks: [],
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-    } as DayEntry;
+    return (
+      found ||
+      ({
+        id: `day-${selectedDate}`,
+        date: selectedDate,
+        entryType: isWeekend ? "WEEKEND" : "WORKING_DAY",
+        userId: "user-default-1",
+        tasks: [],
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      } as DayEntry)
+    );
   }, [entries, selectedDate]);
 
   // Stats calculation
@@ -353,9 +381,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     let pendingItemsCount = 0;
     let totalItemsCount = 0;
 
-    if (currentDayEntry && currentDayEntry.tasks) {
+    if (currentDayEntry && Array.isArray(currentDayEntry.tasks)) {
       for (const t of currentDayEntry.tasks) {
-        for (const item of t.items) {
+        const items = Array.isArray(t.items) ? t.items : [];
+        for (const item of items) {
           totalItemsCount++;
           if (item.estimatedTimeMin) totalEstimatedMin += item.estimatedTimeMin;
           if (item.actualEffortMin) totalActualMin += item.actualEffortMin;

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { X, User, Mail, Briefcase, Sparkles, AlertCircle } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { User, Mail, Briefcase, Sparkles, AlertCircle } from "lucide-react";
 import {
   createUserSchema,
   updateUserSchema,
@@ -9,6 +9,8 @@ import {
   type UserResponse,
 } from "@/lib/users/user.schema";
 import { useCreateUser, useUpdateUser } from "@/lib/users/use-user";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 
 const SUGGESTED_ROLES = [
   "Frontend Engineer",
@@ -47,17 +49,6 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser();
   const mutation = isEditing ? updateMutation : createMutation;
-
-  // Close on Escape key
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   function handleRolePick(role: string) {
     setPosition(role);
@@ -144,45 +135,22 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
   }
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="user-modal-title"
+    <Modal
+      onClose={onClose}
+      maxWidth="max-w-xl"
+      title={isEditing ? "Edit Team Member" : "Add New Team Member"}
+      subtitle={
+        isEditing
+          ? "Update member profile, role, or contact details."
+          : "Add a new member to assign tasks and collaborate on projects."
+      }
     >
-      <div
-        className="modal-container max-w-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="modal-header">
-          <div>
-            <h2 id="user-modal-title">
-              {isEditing ? "Edit Team Member" : "Add New Team Member"}
-            </h2>
-            <p className="mt-1 text-xs text-muted">
-              {isEditing
-                ? "Update member profile, role, or contact details."
-                : "Add a new member to assign tasks and collaborate on projects."}
-            </p>
-          </div>
-          <button
-            className="modal-close"
-            onClick={onClose}
-            type="button"
-            aria-label="Close modal"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <form className="modal-body space-y-5" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-5 p-6">
           {/* General Error Banner */}
           {(fieldErrors.general || mutation.error) && (
             <div className="modal-error flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
+              <AlertCircle className="h-4 w-4 shrink-0 text-danger" />
               <span>{fieldErrors.general || mutation.error?.message}</span>
             </div>
           )}
@@ -193,7 +161,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               htmlFor="user-name-input"
               className="modal-label flex items-center gap-1.5"
             >
-              <User className="w-3.5 h-3.5 text-muted" />
+              <User className="h-3.5 w-3.5 text-muted" />
               <span>Full Name</span>
               <span className="required">*</span>
             </label>
@@ -217,7 +185,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               value={name}
             />
             {fieldErrors.name && (
-              <p className="text-xs text-danger font-medium">{fieldErrors.name}</p>
+              <p className="text-xs font-medium text-danger">{fieldErrors.name}</p>
             )}
           </div>
 
@@ -227,7 +195,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               htmlFor="user-email-input"
               className="modal-label flex items-center gap-1.5"
             >
-              <Mail className="w-3.5 h-3.5 text-muted" />
+              <Mail className="h-3.5 w-3.5 text-muted" />
               <span>Work Email Address</span>
               <span className="required">*</span>
             </label>
@@ -250,7 +218,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               value={email}
             />
             {fieldErrors.email && (
-              <p className="text-xs text-danger font-medium">{fieldErrors.email}</p>
+              <p className="text-xs font-medium text-danger">{fieldErrors.email}</p>
             )}
           </div>
 
@@ -260,7 +228,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               htmlFor="user-position-input"
               className="modal-label flex items-center gap-1.5"
             >
-              <Briefcase className="w-3.5 h-3.5 text-muted" />
+              <Briefcase className="h-3.5 w-3.5 text-muted" />
               <span>Job Title / Position</span>
               <span className="required">*</span>
             </label>
@@ -282,13 +250,13 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
               value={position}
             />
             {fieldErrors.position && (
-              <p className="text-xs text-danger font-medium">{fieldErrors.position}</p>
+              <p className="text-xs font-medium text-danger">{fieldErrors.position}</p>
             )}
 
             {/* Quick Suggested Roles */}
             <div className="pt-1">
-              <div className="flex items-center gap-1 text-[11px] font-medium text-muted uppercase tracking-wider mb-1.5">
-                <Sparkles className="w-3 h-3 text-purple" />
+              <div className="mb-1.5 flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-muted">
+                <Sparkles className="h-3 w-3 text-purple" />
                 <span>Suggested Job Titles</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -299,10 +267,10 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
                       key={role}
                       type="button"
                       onClick={() => handleRolePick(role)}
-                      className={`text-xs px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
+                      className={`cursor-pointer rounded-md border px-2.5 py-1 text-xs transition-all ${
                         isSelected
-                          ? "bg-purple text-white border-purple font-medium shadow-xs"
-                          : "bg-canvas border-line text-ink hover:border-purple hover:bg-purple-50 hover:text-purple"
+                          ? "border-purple bg-purple font-medium text-white shadow-xs"
+                          : "border-line bg-canvas text-ink hover:border-purple hover:bg-purple-50 hover:text-purple"
                       }`}
                     >
                       {role}
@@ -342,39 +310,38 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
                 projects only.
               </p>
               {fieldErrors.role && (
-                <p className="text-xs text-danger font-medium">
+                <p className="text-xs font-medium text-danger">
                   {fieldErrors.role}
                 </p>
               )}
             </div>
           )}
+        </div>
 
-          {/* Footer Actions */}
-          <div className="modal-footer pt-3 border-t border-line">
-            <button
-              className="btn btn-secondary"
-              onClick={onClose}
-              type="button"
-              disabled={mutation.isPending}
-            >
-              Cancel
-            </button>
-            <button
-              className="btn btn-primary"
-              disabled={mutation.isPending}
-              type="submit"
-            >
-              {mutation.isPending
-                ? isEditing
-                  ? "Saving Changes..."
-                  : "Creating Member..."
-                : isEditing
+        {/* Footer Actions */}
+        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            loading={mutation.isPending}
+          >
+            {mutation.isPending
+              ? isEditing
+                ? "Saving Changes..."
+                : "Creating Member..."
+              : isEditing
                 ? "Save Changes"
                 : "Create Member"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

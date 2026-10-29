@@ -4,6 +4,8 @@ import { useState, type ComponentType } from "react";
 import type { EntryType } from "@/lib/tasks/task.schema";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { Briefcase, Sun, Coffee, Palmtree } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 
 interface DayEntryModalProps {
   onClose: () => void;
@@ -13,9 +15,9 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
   const { selectedDate, currentDayEntry, updateDayEntryType } = useTaskContext();
 
   const [entryType, setEntryType] = useState<EntryType>(
-    currentDayEntry?.entryType ?? "WORKING_DAY"
+    currentDayEntry?.entryType ?? "WORKING_DAY",
   );
-  
+
   const typeOptions: {
     type: EntryType;
     title: string;
@@ -54,62 +56,49 @@ export function DayEntryModal({ onClose }: DayEntryModalProps) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div>
-            <h2>Day Schedule Settings</h2>
-            <p className="text-xs text-muted mt-1 m-0">Date: {selectedDate}</p>
-          </div>
-          <button
-            type="button"
-            className="modal-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="modal-body">
-          <span className="modal-label">Select Day Type:</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-            {typeOptions.map((opt) => {
-              const Icon = opt.icon;
-              const isSelected = entryType === opt.type;
-              return (
-                <button
-                  key={opt.type}
-                  type="button"
-                  className={`flex items-start gap-3 p-3 rounded-lg border text-left cursor-pointer transition-all ${
-                    isSelected
-                      ? "border-purple bg-purple-subtle/30 ring-1 ring-purple"
-                      : "border-line bg-card hover:border-purple-border"
-                  }`}
-                  onClick={() => setEntryType(opt.type)}
-                >
-                  <div className="w-8.5 h-8.5 rounded-lg bg-purple-subtle text-purple grid place-items-center shrink-0">
-                    <Icon size={18} />
-                  </div>
-                  <div>
-                    <strong className="block text-ink text-xs font-semibold">{opt.title}</strong>
-                    <p className="m-0 mt-0.5 text-muted text-[11px] leading-snug">{opt.desc}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="button" className="btn btn-primary" onClick={handleSave}>
-              Save Schedule
-            </button>
-          </div>
+    <Modal
+      onClose={onClose}
+      title="Day Schedule Settings"
+      subtitle={`Date: ${selectedDate}`}
+    >
+      <div className="p-6">
+        <span className="modal-label">Select Day Type:</span>
+        <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {typeOptions.map((opt) => {
+            const Icon = opt.icon;
+            const isSelected = entryType === opt.type;
+            return (
+              <button
+                key={opt.type}
+                type="button"
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-all ${
+                  isSelected
+                    ? "border-purple bg-purple-subtle/30 ring-1 ring-purple"
+                    : "border-line bg-card hover:border-purple-border"
+                }`}
+                onClick={() => setEntryType(opt.type)}
+              >
+                <div className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg bg-purple-subtle text-purple">
+                  <Icon size={18} />
+                </div>
+                <div>
+                  <strong className="block text-xs font-semibold text-ink">{opt.title}</strong>
+                  <p className="m-0 mt-0.5 text-[11px] leading-snug text-muted">{opt.desc}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
-    </div>
+
+      <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+        <Button variant="secondary" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSave}>
+          Save Schedule
+        </Button>
+      </div>
+    </Modal>
   );
 }

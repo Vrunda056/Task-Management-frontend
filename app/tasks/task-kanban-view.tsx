@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   FileText,
 } from "lucide-react";
+import { StatusBadge, type BadgeVariant } from "@/components/ui";
 
 interface TaskKanbanViewProps {
   tasks: Task[];
@@ -42,7 +43,7 @@ export function TaskKanbanView({
   const columns: {
     status: TaskItemStatus;
     title: string;
-    pillClass: string;
+    badgeVariant: BadgeVariant;
     colStyle: string;
     countStyle: string;
     dotStyle: string;
@@ -51,7 +52,7 @@ export function TaskKanbanView({
     {
       status: "PENDING",
       title: "Pending",
-      pillClass: "status-amber",
+      badgeVariant: "amber",
       colStyle: "border-t-3 border-t-warning bg-warning-bg/30 border border-warning-border/60",
       countStyle: "bg-warning-bg text-warning border border-warning-border",
       dotStyle: "bg-warning",
@@ -60,7 +61,7 @@ export function TaskKanbanView({
     {
       status: "IN_PROGRESS",
       title: "In Progress",
-      pillClass: "status-blue",
+      badgeVariant: "blue",
       colStyle: "border-t-3 border-t-info bg-info-bg/30 border border-info-border/60",
       countStyle: "bg-info-bg text-info border border-info-border",
       dotStyle: "bg-info",
@@ -69,7 +70,7 @@ export function TaskKanbanView({
     {
       status: "COMPLETED",
       title: "Completed",
-      pillClass: "status-green",
+      badgeVariant: "green",
       colStyle: "border-t-3 border-t-success bg-success-bg/30 border border-success-border/60",
       countStyle: "bg-success-bg text-success border border-success-border",
       dotStyle: "bg-success",
@@ -253,7 +254,7 @@ export function TaskKanbanView({
         <div className="flex items-center justify-between mb-4 px-1 pb-3 border-b border-line/60">
           <div className="flex items-center gap-2.5">
             <span className={`w-2.5 h-2.5 rounded-full ${col.dotStyle}`} />
-            <span className={`status-pill ${col.pillClass}`}>{col.title}</span>
+            <StatusBadge variant={col.badgeVariant}>{col.title}</StatusBadge>
             <span
               className={`grid place-items-center min-w-5 h-5 rounded-full text-xs font-bold px-2 ${col.countStyle}`}
             >
@@ -291,7 +292,7 @@ export function TaskKanbanView({
           <div className="flex items-center justify-between mb-3.5 px-1 pb-2 border-b border-line/60">
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${col.dotStyle}`} />
-              <span className={`status-pill ${col.pillClass}`}>{col.title}</span>
+              <StatusBadge variant={col.badgeVariant}>{col.title}</StatusBadge>
               <span
                 className={`grid place-items-center min-w-5 h-5 rounded-full text-[11px] font-bold px-1.5 ${col.countStyle}`}
               >

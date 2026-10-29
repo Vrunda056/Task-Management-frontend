@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { userRoleSchema } from '../users/user.schema';
 
 export const createProjectSchema = z.object({
   name: z.string().trim().min(1, "Name is required.").max(100),
@@ -23,6 +24,7 @@ export const projectResponseSchema = z.object({
     id: z.string(),
     name: z.string(),
     email: z.string().email(),
+    // role:userRoleSchema,
     position: z.string(),
   }).optional(),
   createdAt: z.iso.datetime(),

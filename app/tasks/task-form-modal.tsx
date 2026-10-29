@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { useProjects } from "@/lib/projects/use-project";
 import { createTaskSchema, type CreateTaskInput } from "@/lib/tasks/task.schema";
 import { Plus, Trash2, Clock } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 
 interface TaskFormModalProps {
   onClose: () => void;
@@ -37,7 +39,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
   function handleItemChange(
     index: number,
     field: "description" | "estimatedTimeMin" | "note",
-    value: string
+    value: string,
   ) {
     setItems((prev) => {
       const updated = [...prev];
@@ -46,11 +48,10 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
     });
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setValidationError("");
 
-    // Determine project ID
     let finalProjectId = projectId;
     if (!finalProjectId && projectsQuery.data && projectsQuery.data.length > 0) {
       finalProjectId = projectsQuery.data[0].id;
@@ -72,7 +73,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
     const result = createTaskSchema.safeParse(payload);
     if (!result.success) {
       setValidationError(
-        result.error.issues[0]?.message ?? "Please check all fields."
+        result.error.issues[0]?.message ?? "Please check all fields.",
       );
       return;
     }
@@ -82,26 +83,13 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container modal-wide" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div>
-            <h2>Create Daily Task</h2>
-            <p className="modal-subtitle">
-              Add a new task with line items and estimated completion times
-            </p>
-          </div>
-          <button
-            type="button"
-            className="modal-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form className="modal-body" onSubmit={handleSubmit}>
+    <Modal
+      onClose={onClose}
+      title="Create Daily Task"
+      subtitle="Add a new task with line items and estimated completion times"
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="p-6">
           <div className="modal-form-grid">
             <label className="modal-field">
               <span className="modal-label">
@@ -159,19 +147,19 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
             </label>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-line">
-            <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="mt-4 border-t border-line pt-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h4 className="text-[var(--text-sm)] font-semibold text-ink">
-                  Task Line Items & Estimates
+                  Task Line Items &amp; Estimates
                 </h4>
-                <p className="text-[var(--text-xs)] text-muted mt-0.5">
+                <p className="mt-0.5 text-[var(--text-xs)] text-muted">
                   Define the individual deliverable descriptions and target minutes
                 </p>
               </div>
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-purple hover:bg-purple-subtle bg-purple-subtle/50 transition-colors border border-purple-border cursor-pointer"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-purple-border bg-purple-subtle/50 px-3 py-1.5 text-xs font-semibold text-purple transition-colors hover:bg-purple-subtle"
                 onClick={handleAddItem}
               >
                 <Plus size={14} />
@@ -179,16 +167,16 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
               </button>
             </div>
 
-            <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
+            <div className="max-h-[260px] space-y-2.5 overflow-y-auto pr-1">
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 p-2 rounded-xl bg-canvas/30 border border-line"
+                  className="flex items-center gap-2 rounded-xl border border-line bg-canvas/30 p-2"
                 >
-                  <div className="w-6 h-6 rounded-md bg-purple-subtle text-purple text-[11px] font-bold flex items-center justify-center shrink-0">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-purple-subtle text-[11px] font-bold text-purple">
                     {index + 1}
                   </div>
-                  <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="flex flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                     <input
                       type="text"
                       className="modal-input flex-1 !text-sm"
@@ -199,8 +187,8 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                         handleItemChange(index, "description", e.target.value)
                       }
                     />
-                    <div className="relative flex items-center shrink-0 sm:w-36">
-                      <Clock size={14} className="absolute left-3 text-muted pointer-events-none" />
+                    <div className="relative flex shrink-0 items-center sm:w-36">
+                      <Clock size={14} className="pointer-events-none absolute left-3 text-muted" />
                       <input
                         type="number"
                         min="0"
@@ -213,7 +201,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                           handleItemChange(index, "estimatedTimeMin", e.target.value)
                         }
                       />
-                      <span className="absolute right-3 text-[11px] text-muted font-medium pointer-events-none">
+                      <span className="pointer-events-none absolute right-3 text-[11px] font-medium text-muted">
                         min
                       </span>
                     </div>
@@ -221,7 +209,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
                   {items.length > 1 && (
                     <button
                       type="button"
-                      className="p-2 text-muted hover:text-danger hover:bg-danger-bg rounded-lg transition-colors shrink-0 cursor-pointer"
+                      className="shrink-0 cursor-pointer rounded-lg p-2 text-muted transition-colors hover:bg-danger-bg hover:text-danger"
                       onClick={() => handleRemoveItem(index)}
                       title="Remove item"
                     >
@@ -236,17 +224,17 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
           {validationError && (
             <div className="modal-error">{validationError}</div>
           )}
+        </div>
 
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Create Task & Items
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit">
+            Create Task & Items
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

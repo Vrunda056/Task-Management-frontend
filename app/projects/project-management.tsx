@@ -9,6 +9,16 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { ProjectFormModal } from "./project-form-modal";
 import { ProjectsTable } from "./projects-table";
+import {
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  Toast,
+  useToast,
+} from "@/components/ui";
 
 export function ProjectManagement() {
   const { user } = useAuth();
@@ -16,9 +26,10 @@ export function ProjectManagement() {
   const projects = useProjects();
   const deleteMutation = useDeleteProject();
   const [showModal, setShowModal] = useState(false);
-  const [editingProject, setEditingProject] = useState<ProjectResponse | null>(
-    null
-  );
+  const [editingProject, setEditingProject] = useState<ProjectResponse | null>(null);
+  const [deletingProject, setDeletingProject] = useState<ProjectResponse | null>(null);
+
+  const { toast, showToast } = useToast();
 
   function handleCreate() {
     setEditingProject(null);
@@ -35,88 +46,74 @@ export function ProjectManagement() {
     setEditingProject(null);
   }
 
-  function handleDelete(project: ProjectResponse) {
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${project.name}"? This action cannot be undone.`
-      )
-    ) {
-      deleteMutation.mutate(project.id);
-    }
+  function handleConfirmDelete() {
+    if (!deletingProject) return;
+    deleteMutation.mutate(deletingProject.id, {
+      onSuccess: () => {
+        showToast("Project deleted successfully");
+        setDeletingProject(null);
+      },
+      onError: (err) => {
+        showToast(err.message || "Failed to delete project", "error");
+      },
+    });
   }
 
   return (
     <>
-      <div className="projects-page">
-        <header className="projects-header">
-          <div>
-            <h1 className="projects-title">Projects</h1>
-            <p className="projects-subtitle">
-              {canManageProjects
-                ? "Manage and track all your active projects"
-                : "View projects available in your workspace"}
-            </p>
-          </div>
-          {canManageProjects && (
-            <button className="primary-button" onClick={handleCreate}>
-              <span>+</span> New Project
-            </button>
-          )}
-        </header>
+      <div className="mx-auto w-full max-w-[1360px]">
+        <PageHeader
+          title="Projects"
+          subtitle={
+            canManageProjects
+              ? "Manage and track all your active projects"
+              : "View projects available in your workspace"
+          }
+          actions={
+            canManageProjects && (
+              <Button icon={<span className="text-base font-normal">+</span>} onClick={handleCreate}>
+                New Project
+              </Button>
+            )
+          }
+        />
 
-        {projects.isPending && (
-          <div className="page-state">
-            <div className="loading-spinner" />
-            <p>Loading projects...</p>
-          </div>
-        )}
+        {projects.isPending && <LoadingState message="Loading projects..." />}
 
         {projects.isError && (
-          <div className="page-error">
-            <span className="error-icon">⚠</span>
-            <div>
-              <h3>Failed to load projects</h3>
-              <p>{projects.error.message}</p>
-            </div>
-          </div>
+          <ErrorState
+            title="Failed to load projects"
+            message={projects.error.message}
+          />
         )}
 
         {projects.data?.length === 0 && (
-          <div className="page-empty">
-            <div className="empty-icon">📋</div>
-            <h3>No projects yet</h3>
-            <p>
-              {canManageProjects
+          <EmptyState
+            icon="📋"
+            title="No projects yet"
+            message={
+              canManageProjects
                 ? "Create your first project to get started"
-                : "There are no projects to display yet"}
-            </p>
-            {canManageProjects && (
-              <button className="primary-button" onClick={handleCreate}>
-                <span>+</span> Create Project
-              </button>
-            )}
-          </div>
+                : "There are no projects to display yet"
+            }
+            action={
+              canManageProjects && (
+                <Button icon={<span className="text-base font-normal">+</span>} onClick={handleCreate}>
+                  Create Project
+                </Button>
+              )
+            }
+          />
         )}
 
         {projects.data && projects.data.length > 0 && (
           <ProjectsTable
             projects={projects.data}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={setDeletingProject}
             isDeleting={deleteMutation.isPending}
             canManage={canManageProjects}
           />
-        )}
-
-        {deleteMutation.isError && (
-          <div className="toast toast-error">
-            Failed to delete: {deleteMutation.error.message}
-          </div>
-        )}
-        {deleteMutation.isSuccess && (
-          <div className="toast toast-success">
-            Project deleted successfully
-          </div>
         )}
       </div>
 
@@ -126,6 +123,19 @@ export function ProjectManagement() {
           project={editingProject || undefined}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(deletingProject)}
+        title="Delete Project"
+        description={`Are you sure you want to delete "${deletingProject?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        loading={deleteMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingProject(null)}
+      />
+
+      <Toast toast={toast} />
     </>
   );
 }
