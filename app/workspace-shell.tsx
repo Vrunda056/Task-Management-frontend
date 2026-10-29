@@ -90,6 +90,8 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
     restoreSession,
   } = useAuth();
   const isAuthPage = pathname === "/login";
+  const isManager = user?.role === "MANAGER";
+  const isUserManagementPage = pathname === "/users" || pathname.startsWith("/users/");
 
   useEffect(() => {
     if (isAuthPage) {
@@ -105,8 +107,21 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
     if (!accessToken) {
       router.replace("/login");
+      return;
     }
-  }, [accessToken, authError, isAuthPage, isInitializing, router]);
+
+    if (isUserManagementPage && !isManager) {
+      router.replace("/projects");
+    }
+  }, [
+    accessToken,
+    authError,
+    isAuthPage,
+    isInitializing,
+    isManager,
+    isUserManagementPage,
+    router,
+  ]);
 
   if (isAuthPage) {
     return <>{children}</>;
@@ -139,6 +154,14 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
     );
   }
 
+  if (isUserManagementPage && !isManager) {
+    return (
+      <div className="auth-redirecting" role="status">
+        Redirecting to projects...
+      </div>
+    );
+  }
+
   const userInitials =
     user?.name
       .split(/\s+/)
@@ -149,7 +172,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
       .toUpperCase() || "U";
   const pageTitle =
     pathname === "/users"
-      ? "People"
+      ? "Users"
       : pathname === "/projects"
       ? "Projects"
       : pathname.startsWith("/tasks")
@@ -201,13 +224,17 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             />
           ))}
 
-          <p className="nav-section-label nav-section-spaced">MANAGE</p>
-          <SidebarLink
-            collapsed={isSidebarCollapsed}
-            href="/users"
-            icon={Users}
-            label="People"
-          />
+          {isManager && (
+            <>
+              <p className="nav-section-label nav-section-spaced">MANAGE</p>
+              <SidebarLink
+                collapsed={isSidebarCollapsed}
+                href="/users"
+                icon={Users}
+                label="Users"
+              />
+            </>
+          )}
         </nav>
 
         <div className="sidebar-bottom">
@@ -222,6 +249,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             <span className="profile-copy">
               <strong>{user?.name}</strong>
               <small>{user?.email}</small>
+              <small>{user?.role}</small>
             </span>
             <button
               aria-label="Log out"

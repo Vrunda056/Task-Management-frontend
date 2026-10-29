@@ -19,7 +19,7 @@ export const registerInputSchema = z
   })
   .strict();
 
-const loginResponseSchema = z
+export const loginResponseSchema = z
   .object({
     accessToken: z.string().min(1),
     user: userResponseSchema,
@@ -35,7 +35,7 @@ export async function login(input: LoginInput): Promise<LoginResponse> {
   const response = await fetch(API_ENDPOINTS.auth.login, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    credentials: 'include',                    //credentials: 'include' allows the browser to include eligible cookies in the request and accept eligible cookies from the response,
     body: JSON.stringify(validatedInput),
   });
 

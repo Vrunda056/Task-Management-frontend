@@ -43,7 +43,8 @@ export function UsersTable({
           <thead>
             <tr>
               <th>Team Member</th>
-              <th>Role / Position</th>
+              <th>Job Title</th>
+              <th>Access Role</th>
               <th>Email Address</th>
               <th>Joined Date</th>
               <th className="actions-col">Actions</th>
@@ -70,6 +71,13 @@ export function UsersTable({
                         </span>
                       </div>
                     </div>
+                  </td>
+
+                  {/* Authorization role */}
+                  <td>
+                    <span className="inline-flex items-center rounded-full border border-line bg-canvas px-2.5 py-1 text-xs font-semibold text-ink">
+                      {user.role === "MANAGER" ? "Manager" : "Developer"}
+                    </span>
                   </td>
 
                   {/* Position badge */}

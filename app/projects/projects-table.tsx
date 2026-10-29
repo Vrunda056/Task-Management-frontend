@@ -88,6 +88,7 @@ interface ProjectsTableProps {
   onEdit: (project: ProjectResponse) => void;
   onDelete: (project: ProjectResponse) => void;
   isDeleting: boolean;
+  canManage: boolean;
 }
 
 export function ProjectsTable({
@@ -95,6 +96,7 @@ export function ProjectsTable({
   onEdit,
   onDelete,
   isDeleting,
+  canManage,
 }: ProjectsTableProps) {
   return (
     <div className="table-container">
@@ -106,7 +108,7 @@ export function ProjectsTable({
               <th>Description</th>
               <th>Owner</th>
               <th>Created</th>
-              <th className="actions-col">Actions</th>
+              {canManage && <th className="actions-col">Actions</th>}
             </tr>
           </thead>
         <tbody>
@@ -163,25 +165,27 @@ export function ProjectsTable({
                   })}
                 </div>
               </td>
-              <td>
-                <div className="table-actions">
-                  <button
-                    className="action-btn action-edit"
-                    onClick={() => onEdit(project)}
-                    title="Edit project"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    className="action-btn action-delete"
-                    disabled={isDeleting}
-                    onClick={() => onDelete(project)}
-                    title="Delete project"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
+              {canManage && (
+                <td>
+                  <div className="table-actions">
+                    <button
+                      className="action-btn action-edit"
+                      onClick={() => onEdit(project)}
+                      title="Edit project"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      className="action-btn action-delete"
+                      disabled={isDeleting}
+                      onClick={() => onDelete(project)}
+                      title="Delete project"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

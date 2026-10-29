@@ -6,10 +6,13 @@ import {
   useDeleteProject,
   useProjects,
 } from "@/lib/projects/use-project";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ProjectFormModal } from "./project-form-modal";
 import { ProjectsTable } from "./projects-table";
 
 export function ProjectManagement() {
+  const { user } = useAuth();
+  const canManageProjects = user?.role === "MANAGER";
   const projects = useProjects();
   const deleteMutation = useDeleteProject();
   const [showModal, setShowModal] = useState(false);
@@ -49,12 +52,16 @@ export function ProjectManagement() {
           <div>
             <h1 className="projects-title">Projects</h1>
             <p className="projects-subtitle">
-              Manage and track all your active projects
+              {canManageProjects
+                ? "Manage and track all your active projects"
+                : "View projects available in your workspace"}
             </p>
           </div>
-          <button className="primary-button" onClick={handleCreate}>
-            <span>+</span> New Project
-          </button>
+          {canManageProjects && (
+            <button className="primary-button" onClick={handleCreate}>
+              <span>+</span> New Project
+            </button>
+          )}
         </header>
 
         {projects.isPending && (
@@ -78,10 +85,16 @@ export function ProjectManagement() {
           <div className="page-empty">
             <div className="empty-icon">📋</div>
             <h3>No projects yet</h3>
-            <p>Create your first project to get started</p>
-            <button className="primary-button" onClick={handleCreate}>
-              <span>+</span> Create Project
-            </button>
+            <p>
+              {canManageProjects
+                ? "Create your first project to get started"
+                : "There are no projects to display yet"}
+            </p>
+            {canManageProjects && (
+              <button className="primary-button" onClick={handleCreate}>
+                <span>+</span> Create Project
+              </button>
+            )}
           </div>
         )}
 
@@ -91,6 +104,7 @@ export function ProjectManagement() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             isDeleting={deleteMutation.isPending}
+            canManage={canManageProjects}
           />
         )}
 

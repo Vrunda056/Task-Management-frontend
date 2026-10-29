@@ -19,6 +19,7 @@ import {
 } from './auth.api';
 import {
   getAuthSession,
+  isAccessTokenValid,
   refreshAuthSession,
   setAuthSession,
   subscribeToAuthSession,
@@ -65,6 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
+    // If we already have a valid access token in localStorage (from a
+    // previous login), use it directly — no need to hit the refresh API.
+    const existingSession = getAuthSession();
+    if (existingSession && isAccessTokenValid(existingSession.accessToken)) {
+      setIsInitializing(false);
+      return;
+    }
+
+    // No valid token — fall back to refresh using the httpOnly cookie.
     refreshAuthSession()
       .catch((error: unknown) => {
         if (isMounted) {
@@ -86,8 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(
-    async (input: LoginInput) => {
+  const login = useCallback(async (input: LoginInput) => {
       const nextSession = await requestLogin(input);
       queryClient.clear();
       setAuthSession(nextSession);

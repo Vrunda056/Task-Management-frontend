@@ -29,7 +29,7 @@ export function UserManagement() {
 
   // Filter & view states
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRole, setSelectedRole] = useState("all");
+  const [selectedPosition, setSelectedPosition] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   // Toast state
@@ -49,11 +49,11 @@ export function UserManagement() {
 
   // Derived metrics
   const totalCount = allUsers.length;
-  const uniqueRoles = useMemo(() => {
-    const roles = Array.from(new Set(allUsers.map((u) => u.position.trim()))).filter(
+  const uniquePositions = useMemo(() => {
+    const positions = Array.from(new Set(allUsers.map((u) => u.position.trim()))).filter(
       Boolean
     );
-    return roles.sort((a, b) => a.localeCompare(b));
+    return positions.sort((a, b) => a.localeCompare(b));
   }, [allUsers]);
 
   const newestMember = useMemo(() => {
@@ -75,19 +75,21 @@ export function UserManagement() {
         (user) =>
           user.name.toLowerCase().includes(q) ||
           user.email.toLowerCase().includes(q) ||
-          user.position.toLowerCase().includes(q)
+          user.position.toLowerCase().includes(q) ||
+          user.role.toLowerCase().includes(q)
       );
     }
 
     // Role filter
-    if (selectedRole !== "all") {
+    if (selectedPosition !== "all") {
       result = result.filter(
-        (user) => user.position.trim().toLowerCase() === selectedRole.toLowerCase()
+        (user) =>
+          user.position.trim().toLowerCase() === selectedPosition.toLowerCase()
       );
     }
 
     return result;
-  }, [allUsers, searchQuery, selectedRole]);
+  }, [allUsers, searchQuery, selectedPosition]);
 
   function handleOpenCreate() {
     setEditingUser(null);
@@ -129,7 +131,7 @@ export function UserManagement() {
 
   function handleClearFilters() {
     setSearchQuery("");
-    setSelectedRole("all");
+    setSelectedPosition("all");
   }
 
   return (
@@ -137,7 +139,7 @@ export function UserManagement() {
       {/* Top Header */}
       <header className="projects-header">
         <div>
-          <h1 className="projects-title">People & Teams</h1>
+          <h1 className="projects-title">User Management</h1>
           <p className="projects-subtitle">
             Manage team members, roles, and access across projects and workflows.
           </p>
@@ -177,19 +179,19 @@ export function UserManagement() {
 
         {/* Filter Dropdowns and View Controls */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Role Filter */}
+          {/* Position Filter */}
           <div className="flex items-center gap-1.5 text-xs">
             <Filter className="w-3.5 h-3.5 text-muted" />
             <select
               className="modal-input !h-9 !w-auto text-xs py-1"
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              aria-label="Filter by role"
+              value={selectedPosition}
+              onChange={(e) => setSelectedPosition(e.target.value)}
+              aria-label="Filter by job title"
             >
-              <option value="all">All Roles ({allUsers.length})</option>
-              {uniqueRoles.map((role) => (
-                <option key={role} value={role}>
-                  {role}
+              <option value="all">All Positions ({allUsers.length})</option>
+              {uniquePositions.map((position) => (
+                <option key={position} value={position}>
+                  {position}
                 </option>
               ))}
             </select>
@@ -224,7 +226,7 @@ export function UserManagement() {
               <LayoutGrid className="w-4 h-4" />
             </button>
           </div>
-          {(searchQuery.trim() || selectedRole !== "all") && (
+          {(searchQuery.trim() || selectedPosition !== "all") && (
             <button
               type="button"
               onClick={handleClearFilters}
@@ -283,7 +285,8 @@ export function UserManagement() {
             <h3>No matching members found</h3>
             <p>
               No members matched your search for &ldquo;{searchQuery}&rdquo;
-              {selectedRole !== "all" && ` with role "${selectedRole}"`}.
+              {selectedPosition !== "all" &&
+                ` with position "${selectedPosition}"`}.
             </p>
             <button
               className="btn btn-secondary cursor-pointer mt-2"

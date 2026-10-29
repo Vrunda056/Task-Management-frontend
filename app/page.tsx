@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useProjects } from "@/lib/projects/use-project";
+import { useAuth } from "@/lib/auth/auth-context";
 
 const tasks = [
   {
@@ -44,6 +45,8 @@ const tasks = [
 
 export default function Home() {
   const projectsQuery = useProjects();
+  const { user } = useAuth();
+  const isManager = user?.role === "MANAGER";
 
   return (
     <div className="dashboard">
@@ -117,7 +120,9 @@ export default function Home() {
           {projectsQuery.isSuccess && projectsQuery.data.length === 0 && (
             <div className="dashboard-project-state">
               <p>No projects yet.</p>
-              <Link href="/projects">Create your first project</Link>
+              {isManager && (
+                <Link href="/projects">Create your first project</Link>
+              )}
             </div>
           )}
           {projectsQuery.isSuccess && projectsQuery.data.length > 0 && (

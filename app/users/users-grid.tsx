@@ -80,7 +80,7 @@ export function UsersGrid({
                 </div>
               </div>
 
-              {/* Member Name & Role */}
+              {/* Member Name & Job Title */}
               <div className="space-y-1.5">
                 <h3 className="font-semibold text-ink text-base truncate">
                   {user.name}
@@ -88,6 +88,9 @@ export function UsersGrid({
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-canvas border border-line text-ink">
                   <Briefcase className="w-3 h-3 text-muted shrink-0" />
                   <span className="truncate max-w-[200px]">{user.position}</span>
+                </div>
+                <div className="inline-flex items-center rounded-full border border-line bg-canvas px-2.5 py-0.5 text-xs font-semibold text-ink">
+                  Access: {user.role === "MANAGER" ? "Manager" : "Developer"}
                 </div>
               </div>
 
