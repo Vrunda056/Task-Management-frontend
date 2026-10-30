@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { Task, TaskItem, TaskItemStatus } from "@/lib/tasks/task.schema";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import {
@@ -31,6 +31,8 @@ export function TaskKanbanView({
     pauseTimer,
     updateTaskItem,
   } = useTaskContext();
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
 
   // Flatten items with parent task references
   const itemsWithParent: Array<{ task: Task; item: TaskItem }> = [];
@@ -80,6 +82,16 @@ export function TaskKanbanView({
 
   function moveItem(itemId: string, newStatus: TaskItemStatus) {
     updateTaskItem(itemId, { status: newStatus });
+  }
+
+  function startEditingNote(item: TaskItem) {
+    setEditingNoteId(item.id);
+    setNoteDraft(item.note ?? "");
+  }
+
+  function saveNote(item: TaskItem) {
+    updateTaskItem(item.id, { note: noteDraft.trim() || null });
+    setEditingNoteId(null);
   }
 
   const isFilteredSingleColumn = selectedStatus && selectedStatus !== "ALL";
@@ -162,22 +174,56 @@ export function TaskKanbanView({
         </div>
 
         {/* Note */}
-        {item.note && (
-          <div className="flex items-start gap-1.5 p-1.5 px-2 rounded-md bg-warning-bg border border-warning-border text-warning text-xs mb-2.5">
-            <FileText size={11} className="mt-0.5 shrink-0" />
-            <span>{item.note}</span>
+        {editingNoteId === item.id ? (
+          <div className="mb-2.5 flex items-center gap-2">
+            <input
+              type="text"
+              className="h-8 min-w-0 flex-1 rounded-md border border-line px-2.5 text-xs text-ink outline-none focus:border-purple"
+              placeholder="Add note or explanation for delay..."
+              value={noteDraft}
+              onChange={(event) => setNoteDraft(event.target.value)}
+              autoFocus
+              onKeyDown={(event) => {
+                if (event.key === "Enter") saveNote(item);
+                if (event.key === "Escape") setEditingNoteId(null);
+              }}
+            />
+            <button
+              type="button"
+              className="h-8 cursor-pointer rounded-md border-0 bg-purple px-2.5 text-xs font-semibold text-white transition-colors hover:bg-purple-hover"
+              onClick={() => saveNote(item)}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              className="h-8 cursor-pointer rounded-md border border-line bg-card px-2.5 text-xs text-muted transition-colors hover:text-ink"
+              onClick={() => setEditingNoteId(null)}
+            >
+              Cancel
+            </button>
           </div>
-        )}
+        ) : item.note ? (
+          <button
+            type="button"
+            className="mb-2.5 flex max-w-full cursor-pointer items-start gap-1.5 rounded-md border border-warning-border bg-warning-bg p-1.5 px-2 text-left text-xs text-warning"
+            onClick={() => startEditingNote(item)}
+            title="Click to edit note"
+          >
+            <FileText size={11} className="mt-0.5 shrink-0" />
+            <span className="break-words">{item.note}</span>
+          </button>
+        ) : null}
 
         {/* Controls footer */}
         <div className="flex items-center justify-between gap-2 border-t border-line pt-2.5">
           <div className="flex items-center gap-1">
             <button
               type="button"
-              className={`inline-flex items-center gap-1 h-7 px-2 rounded-md border text-xs font-semibold cursor-pointer transition-all ${
+              className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-2xs transition-all ${
                 isRunning
-                  ? "bg-warning-bg border-warning-border text-warning"
-                  : "bg-purple-subtle border-purple-border text-purple hover:bg-purple-subtle/80"
+                  ? "border-amber-300 bg-amber-100 text-amber-900 shadow-xs animate-pulse"
+                  : "border-purple-300 bg-purple-50 text-purple hover:bg-purple-100 hover:border-purple-400"
               }`}
               onClick={() => {
                 if (isRunning) pauseTimer();
@@ -187,24 +233,35 @@ export function TaskKanbanView({
               {isRunning ? (
                 <>
                   <Pause size={13} />
-                  <span>Pause</span>
+                  <span>Pause Timer</span>
                 </>
               ) : (
                 <>
                   <Play size={13} fill="currentColor" />
-                  <span>{item.actualEffortMin ? "Resume" : "Track"}</span>
+                  <span>{item.actualEffortMin ? "Resume" : "Track Time"}</span>
                 </>
               )}
             </button>
 
             <button
               type="button"
-              className="grid place-items-center w-7 h-7 rounded-md border border-line bg-card text-muted hover:text-purple hover:border-purple-border cursor-pointer transition-colors"
+              className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-purple-200/80 bg-purple-50/60 text-purple transition-all hover:bg-purple-100 hover:border-purple-300 hover:shadow-xs"
               onClick={() => onOpenTimerModal(task, item)}
               title="Timer presets and manual log"
             >
               <Timer size={14} />
             </button>
+
+            {!item.note && (
+              <button
+                type="button"
+                className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-amber-200/80 bg-amber-50/60 text-amber-700 transition-all hover:bg-amber-100 hover:border-amber-300 hover:shadow-xs"
+                onClick={() => startEditingNote(item)}
+                title="Add delay explanation / note"
+              >
+                <FileText size={15} />
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-1">

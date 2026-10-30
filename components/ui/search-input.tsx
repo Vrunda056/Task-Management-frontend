@@ -23,12 +23,12 @@ export function SearchInput({
   return (
     <div className={`relative ${className}`}>
       <Search
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple/50"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple/60"
         aria-hidden="true"
       />
       <input
         type="text"
-        className={`w-full rounded-lg border border-purple-200/70 bg-white text-xs text-ink outline-none transition-all hover:border-purple-300 focus:border-purple focus:ring-2 focus:ring-purple/15 ${height === 36 ? "h-9" : ""} pl-9 pr-8 shadow-2xs placeholder:text-muted`}
+        className={`w-full rounded-lg border border-purple-200/70 bg-white text-xs text-ink outline-none transition-all hover:border-purple focus:border-purple focus:ring-2 focus:ring-purple/15 ${height === 36 ? "h-9" : ""} pl-9 pr-8 shadow-2xs placeholder:text-muted`}
         style={height !== 36 ? { height: `${height}px` } : undefined}
         placeholder={placeholder}
         value={value}

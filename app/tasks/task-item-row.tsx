@@ -68,13 +68,13 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
   return (
     <div
       className={`flex items-center justify-between gap-4 p-3.5 transition-colors sm:px-5 ${
-        item.status === "COMPLETED" ? "bg-slate-50/60" : "hover:bg-purple-50/30"
+        item.status === "COMPLETED" ? "bg-slate-50/60" : "hover:bg-slate-50/60"
       } ${isRunning ? "border-l-[3px] border-l-purple bg-purple-50/70" : ""}`}
     >
       <div className="flex min-w-0 flex-1 items-start gap-3">
         <button
           type="button"
-          className="mt-0.5 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-purple/40 transition-colors hover:text-purple"
+          className="mt-0.5 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-slate-400 transition-colors hover:text-slate-700"
           onClick={handleToggleStatus}
           title={`Status: ${item.status}. Click to cycle.`}
         >
@@ -118,11 +118,11 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
                 className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-mono font-medium shadow-2xs ${
                   hasBoth && diff > 0
                     ? "border-danger-border bg-danger-bg text-danger"
-                    : "border-purple-border bg-purple-subtle text-purple"
+                    : "border-slate-200 bg-slate-50 text-slate-700"
                 }`}
               >
-                <Timer size={11} className={hasBoth && diff > 0 ? "text-danger" : "text-purple"} />
-                <span>Act: <strong className={`font-semibold ${hasBoth && diff > 0 ? "text-danger" : "text-purple"}`}>{item.actualEffortMin}m</strong></span>
+                <Timer size={11} className={hasBoth && diff > 0 ? "text-danger" : "text-slate-500"} />
+                <span>Act: <strong className={`font-semibold ${hasBoth && diff > 0 ? "text-danger" : "text-slate-700"}`}>{item.actualEffortMin}m</strong></span>
                 {hasBoth && diff !== 0 && (
                   <span
                     className={`rounded border px-1 text-[9px] font-bold ${

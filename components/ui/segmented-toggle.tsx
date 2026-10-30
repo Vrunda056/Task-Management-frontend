@@ -12,8 +12,6 @@ export interface SegmentedToggleProps<T extends string> {
   options: SegmentedToggleOption<T>[];
   onChange: (value: T) => void;
   className?: string;
-  /** Active segment colour theme — "gray" (default) or "purple". */
-  activeTheme?: "gray" | "purple" | "neutral";
 }
 
 /**
@@ -25,25 +23,10 @@ export function SegmentedToggle<T extends string>({
   options,
   onChange,
   className = "",
-  activeTheme = "gray",
 }: SegmentedToggleProps<T>) {
-  const isPurple = activeTheme === "purple";
-
-  const containerClass = isPurple
-    ? "border-purple-200/70 bg-[#faf8ff]"
-    : "border-zinc-300/80 bg-zinc-100";
-
-  const activeClass = isPurple
-    ? "bg-purple text-white shadow-xs font-semibold"
-    : "bg-zinc-800 text-white shadow-xs font-semibold";
-
-  const inactiveClass = isPurple
-    ? "bg-transparent text-[#665a9e] hover:bg-white hover:text-purple"
-    : "bg-transparent text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900";
-
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-lg border p-1 shadow-2xs ${containerClass} ${className}`}
+      className={`inline-flex h-9 items-center gap-1 rounded-lg border border-purple-200/70 bg-white p-1 shadow-2xs ${className}`}
     >
       {options.map((opt) => (
         <button
@@ -51,8 +34,10 @@ export function SegmentedToggle<T extends string>({
           type="button"
           title={opt.title}
           aria-label={opt.title ?? opt.label}
-          className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold outline-none focus:outline-none focus-visible:outline-none transition-all ${
-            value === opt.value ? activeClass : inactiveClass
+          className={`inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold outline-none focus:outline-none focus-visible:outline-none transition-all ${
+            value === opt.value
+              ? "bg-purple text-white shadow-xs"
+              : "bg-transparent text-ink-secondary hover:bg-purple-subtle/60 hover:text-purple"
           }`}
           onClick={() => onChange(opt.value)}
         >

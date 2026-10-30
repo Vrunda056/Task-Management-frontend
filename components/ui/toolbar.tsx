@@ -12,7 +12,7 @@ export interface ToolbarProps {
 export function Toolbar({ children, className = "" }: ToolbarProps) {
   return (
     <div
-      className={`mb-6 flex flex-col items-stretch gap-3 rounded-xl border border-purple-100/90 bg-white p-3.5 shadow-xs lg:flex-row lg:items-center lg:justify-between ${className}`}
+      className={`mb-6 flex flex-col items-stretch gap-3 rounded-xl border border-purple-200/70 bg-white p-3.5 shadow-xs lg:flex-row lg:items-center lg:justify-between ${className}`}
     >
       {children}
     </div>

@@ -325,7 +325,6 @@ export function TaskManagement() {
           <SegmentedToggle
             value={selectedStatus}
             onChange={setSelectedStatus}
-            activeTheme="gray"
             options={[
               { value: "ALL", label: "All" },
               { value: "PENDING", label: "Pending" },
@@ -352,10 +351,9 @@ export function TaskManagement() {
           <SegmentedToggle
             value={viewMode}
             onChange={(v) => setViewMode(v as "list" | "kanban")}
-            activeTheme="gray"
             options={[
-              { value: "list", label: "List", icon: <List size={15} />, title: "Grouped List View" },
-              { value: "kanban", label: "Kanban", icon: <Columns size={15} />, title: "Kanban Board View" },
+              { value: "list", icon: <List size={15} />, title: "Grouped List View" },
+              { value: "kanban", icon: <Columns size={15} />, title: "Kanban Board View" },
             ]}
           />
         </div>
