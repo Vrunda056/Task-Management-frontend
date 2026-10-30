@@ -68,6 +68,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback(
     (message: string, variant: ToastVariant = "success", duration = 4000) => {
+      console.log("[Toast]", { message, variant, duration });
       const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const newToast: ToastItem = { id, message, variant, duration };
 
@@ -131,7 +132,7 @@ function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
 
   return (
     <div
-      className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"
+      className="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-md w-full pointer-events-none px-4 sm:px-0"
       aria-live="polite"
       role="region"
       aria-label="Notifications"
@@ -148,19 +149,19 @@ const variantStyles: Record<
   { container: string; icon: typeof CheckCircle2 }
 > = {
   success: {
-    container: "border-success-border bg-success-bg text-success",
+    container: "border-success-border bg-[#ecfdf5] text-success",
     icon: CheckCircle2,
   },
   error: {
-    container: "border-danger-border bg-danger-bg text-danger",
+    container: "border-danger-border bg-[#fff0f0] text-danger",
     icon: AlertCircle,
   },
   warning: {
-    container: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    container: "border-amber-300 bg-[#fffbeb] text-amber-800",
     icon: AlertTriangle,
   },
   info: {
-    container: "border-brand-border bg-brand-bg text-brand",
+    container: "border-purple-200 bg-[#f5f3ff] text-purple-900",
     icon: Info,
   },
 };
@@ -178,7 +179,7 @@ function ToastCard({
   return (
     <div
       role="status"
-      className={`pointer-events-auto flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur-sm transition-all duration-200 animate-[slideInUp_0.25s_ease-out] ${style.container}`}
+      className={`pointer-events-auto flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm font-semibold shadow-xl transition-all duration-200 animate-[slideInDown_0.25s_ease-out] ${style.container}`}
     >
       <div className="flex items-center gap-2.5 min-w-0">
         <Icon className="h-4 w-4 shrink-0" />

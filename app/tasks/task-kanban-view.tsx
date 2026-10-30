@@ -16,13 +16,11 @@ import { StatusBadge, type BadgeVariant } from "@/components/ui";
 
 interface TaskKanbanViewProps {
   tasks: Task[];
-  onOpenTimerModal: (task: Task, item: TaskItem) => void;
   selectedStatus?: string;
 }
 
 export function TaskKanbanView({
   tasks,
-  onOpenTimerModal,
   selectedStatus = "ALL",
 }: TaskKanbanViewProps) {
   const {
@@ -55,7 +53,7 @@ export function TaskKanbanView({
       status: "PENDING",
       title: "Pending",
       badgeVariant: "amber",
-      colStyle: "border-t-3 border-t-warning bg-warning-bg/30 border border-warning-border/60",
+      colStyle: "border-t-3 border-t-warning bg-warning-bg/70 border border-warning-border/80",
       countStyle: "bg-warning-bg text-warning border border-warning-border",
       dotStyle: "bg-warning",
       items: itemsWithParent.filter((x) => x.item.status === "PENDING"),
@@ -64,7 +62,7 @@ export function TaskKanbanView({
       status: "IN_PROGRESS",
       title: "In Progress",
       badgeVariant: "blue",
-      colStyle: "border-t-3 border-t-info bg-info-bg/30 border border-info-border/60",
+      colStyle: "border-t-3 border-t-info bg-info-bg/70 border border-info-border/80",
       countStyle: "bg-info-bg text-info border border-info-border",
       dotStyle: "bg-info",
       items: itemsWithParent.filter((x) => x.item.status === "IN_PROGRESS"),
@@ -73,7 +71,7 @@ export function TaskKanbanView({
       status: "COMPLETED",
       title: "Completed",
       badgeVariant: "green",
-      colStyle: "border-t-3 border-t-success bg-success-bg/30 border border-success-border/60",
+      colStyle: "border-t-3 border-t-success bg-success-bg/90 border border-success-border/100",
       countStyle: "bg-success-bg text-success border border-success-border",
       dotStyle: "bg-success",
       items: itemsWithParent.filter((x) => x.item.status === "COMPLETED"),
@@ -133,7 +131,7 @@ export function TaskKanbanView({
         <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
           {item.estimatedTimeMin !== null && (
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-canvas border border-line text-ink-secondary text-[11px] font-mono font-medium shadow-2xs">
-              <Clock size={11} className="text-muted" />
+              <Clock size={11} className="text-purple" />
               <span>
                 Est:{" "}
                 <strong className="font-semibold text-ink">
@@ -227,41 +225,40 @@ export function TaskKanbanView({
               }`}
               onClick={() => {
                 if (isRunning) pauseTimer();
-                else startTimer(task, item, { mode: "stopwatch" });
+                else startTimer(task, item);
               }}
+              title={
+                isRunning
+                  ? "Pause timer"
+                  : item.actualEffortMin
+                    ? "Resume timer"
+                    : "Track time"
+              }
             >
               {isRunning ? (
                 <>
                   <Pause size={13} />
                   <span>Pause Timer</span>
                 </>
-              ) : (
+              ) : item.actualEffortMin ? (
                 <>
                   <Play size={13} fill="currentColor" />
-                  <span>{item.actualEffortMin ? "Resume" : "Track Time"}</span>
+                  <span>Resume</span>
                 </>
+              ) : (
+                <Timer size={15} aria-hidden="true" />
               )}
             </button>
 
             <button
               type="button"
-              className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-purple-200/80 bg-purple-50/60 text-purple transition-all hover:bg-purple-100 hover:border-purple-300 hover:shadow-xs"
-              onClick={() => onOpenTimerModal(task, item)}
-              title="Timer presets and manual log"
+              className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-amber-200/80 bg-amber-50/60 text-amber-700 transition-all hover:bg-amber-100 hover:border-amber-300 hover:shadow-xs"
+              onClick={() => startEditingNote(item)}
+              title={item.note ? "Edit note" : "Add note"}
+              aria-label={item.note ? "Edit note" : "Add note"}
             >
-              <Timer size={14} />
+              <FileText size={15} />
             </button>
-
-            {!item.note && (
-              <button
-                type="button"
-                className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-amber-200/80 bg-amber-50/60 text-amber-700 transition-all hover:bg-amber-100 hover:border-amber-300 hover:shadow-xs"
-                onClick={() => startEditingNote(item)}
-                title="Add delay explanation / note"
-              >
-                <FileText size={15} />
-              </button>
-            )}
           </div>
 
           <div className="flex items-center gap-1">

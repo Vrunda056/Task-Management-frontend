@@ -58,12 +58,9 @@ export interface ActiveTimer {
   taskName: string;
   itemDescription: string;
   projectName: string;
-  mode: "stopwatch" | "countdown";
-  initialTargetSeconds: number; // e.g. 25 * 60 for 25 min pomodoro, or 0 for stopwatch
-  secondsLeft: number; // For countdown
-  elapsedSeconds: number; // For stopwatch or elapsed tracking
+  elapsedSeconds: number;
   isRunning: boolean;
-  startedAt: number; // Timestamp
+  startedAt: number;
   estimatedTimeMin: number | null;
 }
 

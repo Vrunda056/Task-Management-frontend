@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
-  Bell,
   Calendar,
   CheckCircle2,
   ChevronLeft,
@@ -13,13 +12,13 @@ import {
   Layers,
   LayoutGrid,
   LogOut,
-  Search,
   Settings,
   Users,
 } from "lucide-react";
 
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { useAuth } from "@/lib/auth/auth-context";
+import { ConfirmDialog } from "@/components/ui";
 
 interface NavItem {
   label: string;
@@ -80,7 +79,8 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const { activeTimer } = useTaskContext();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { activeTimer, currentDayEntry, selectedDate } = useTaskContext();
   const {
     accessToken,
     user,
@@ -174,14 +174,32 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
     pathname === "/users"
       ? "Users"
       : pathname === "/projects"
-      ? "Projects"
-      : pathname.startsWith("/tasks")
-      ? "My Tasks"
-      : "Workspace";
+        ? "Projects"
+        : pathname.startsWith("/tasks")
+          ? "My Tasks"
+          : "Workspace";
 
   const timerDisplay = activeTimer
-    ? `${String(Math.floor((activeTimer.mode === "countdown" ? activeTimer.secondsLeft : activeTimer.elapsedSeconds) / 60)).padStart(2, "0")}:${String((activeTimer.mode === "countdown" ? activeTimer.secondsLeft : activeTimer.elapsedSeconds) % 60).padStart(2, "0")}`
+    ? `${String(Math.floor(activeTimer.elapsedSeconds / 60)).padStart(2, "0")}:${String(Math.floor(activeTimer.elapsedSeconds % 60)).padStart(2, "0")}`
     : "";
+
+  const todayItems = currentDayEntry?.tasks.flatMap((t) => t.items) ?? [];
+  const completedTodayCount = todayItems.filter((i) => i.status === "COMPLETED").length;
+  const totalTodayCount = todayItems.length;
+
+  const todayFormatted = (() => {
+    try {
+      const [y, m, d] = (selectedDate || "").split("-").map(Number);
+      if (y && m && d) {
+        return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        });
+      }
+    } catch { }
+    return "Today";
+  })();
 
   return (
     <div className={`workspace-shell${isSidebarCollapsed ? " sidebar-collapsed" : ""}`}>
@@ -215,7 +233,6 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav aria-label="Main navigation" className="sidebar-nav">
-          <p className="nav-section-label">WORKSPACE</p>
           {mainNavigation.map((item) => (
             <SidebarLink
               key={item.label}
@@ -226,7 +243,6 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
           {isManager && (
             <>
-              <p className="nav-section-label nav-section-spaced">MANAGE</p>
               <SidebarLink
                 collapsed={isSidebarCollapsed}
                 href="/users"
@@ -238,26 +254,16 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="sidebar-bottom">
-          <SidebarLink
-            collapsed={isSidebarCollapsed}
-            href={null}
-            icon={Settings}
-            label="Settings"
-          />
           <div className="sidebar-profile">
             <span className="avatar avatar-lavender">{userInitials}</span>
             <span className="profile-copy">
               <strong>{user?.name}</strong>
-              <small>{user?.email}</small>
               <small>{user?.role}</small>
             </span>
             <button
               aria-label="Log out"
-              className="auth-logout"
-              onClick={() => {
-                void logout();
-                router.replace("/login");
-              }}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-danger-border bg-danger-bg text-danger shadow-2xs transition-all hover:-translate-y-px hover:border-danger hover:bg-danger-border/40 hover:shadow-xs active:translate-y-0 cursor-pointer"
+              onClick={() => setShowLogoutConfirm(true)}
               title="Log out"
               type="button"
             >
@@ -272,7 +278,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
           <div aria-label="Breadcrumb" className="breadcrumb">
             <strong>{pageTitle}</strong>
           </div>
-          <div className="topbar-actions">
+          <div className="topbar-actions flex items-center gap-2.5">
             {activeTimer && (
               <Link
                 href="/tasks"
@@ -285,11 +291,10 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple opacity-75" />
                   )}
                   <span
-                    className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                      activeTimer.isRunning
-                        ? "bg-purple"
-                        : "bg-warning"
-                    }`}
+                    className={`relative inline-flex rounded-full h-2.5 w-2.5 ${activeTimer.isRunning
+                      ? "bg-purple"
+                      : "bg-warning"
+                      }`}
                   />
                 </span>
 
@@ -312,25 +317,56 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
                 />
               </Link>
             )}
-            <label className="search-box">
-              <Search size={17} strokeWidth={1.8} />
-              <input aria-label="Search" placeholder="Search anything..." />
-              <kbd>⌘ K</kbd>
-            </label>
-            <button
-              aria-label="Notifications"
-              className="icon-button"
-              type="button"
-            >
-              <Bell size={20} strokeWidth={1.8} />
-              <span className="notification-dot" />
-            </button>
+
+            {/* At-a-glance status indicators */}
+            <div className="flex items-center gap-2">
+              {/* Today's Date */}
+              <div
+                className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs"
+                title="Current Date"
+              >
+                <Calendar size={13} className="text-purple shrink-0" />
+                <span>{todayFormatted}</span>
+              </div>
+
+              {/* Tasks Progress / Clearance */}
+              <Link
+                href="/tasks"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-success-border bg-success-bg px-3 py-1.5 text-xs font-semibold text-success shadow-2xs transition-all hover:-translate-y-px hover:bg-success-border/30"
+                title="View today's tasks"
+              >
+                <CheckCircle2 size={14} className="text-success shrink-0" />
+                <span>
+                  {totalTodayCount > 0
+                    ? `${completedTodayCount}/${totalTodayCount} Tasks Done`
+                    : "0 Tasks Scheduled"}
+                </span>
+              </Link>
+            </div>
+
             <span className="topbar-divider" />
-            <span className="avatar avatar-lavender topbar-avatar">{userInitials}</span>
+            <div className="flex items-center gap-2">
+              <span className="avatar avatar-lavender topbar-avatar">{userInitials}</span>
+            </div>
           </div>
         </header>
         <main className="workspace-main">{children}</main>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        title="Sign Out"
+        description="Are you sure you want to sign out of your Taskly workspace?"
+        confirmLabel="Sign Out"
+        variant="danger"
+        onConfirm={async () => {
+          setShowLogoutConfirm(false);
+          await logout();
+          router.replace("/login");
+        }}
+        onClose={() => setShowLogoutConfirm(false)}
+      />
     </div>
   );
 }

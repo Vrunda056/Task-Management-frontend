@@ -141,13 +141,10 @@ interface TaskContextType {
   startTimer: (
     task: Task,
     item: TaskItem,
-    options?: { mode?: "stopwatch" | "countdown"; targetMinutes?: number }
   ) => void;
   pauseTimer: () => void;
   resumeTimer: () => void;
-  stopTimer: (saveToEffort?: boolean, markCompleted?: boolean, note?: string) => void;
-  resetTimer: () => void;
-  extendTimer: (additionalMinutes: number) => void;
+  stopTimer: () => void;
   // Tasks CRUD
   createTask: (input: CreateTaskInput) => void;
   updateTaskName: (taskId: string, newTaskName: string) => void;
@@ -168,7 +165,6 @@ interface TaskContextType {
     }>
   ) => void;
   deleteTaskItem: (taskItemId: string) => void;
-  logManualTime: (taskItemId: string, minutes: number, note?: string) => void;
   // Day Entry Type
   updateDayEntryType: (date: string, type: EntryType) => void;
   // Stats
@@ -216,19 +212,11 @@ function getStoredTimer(): ActiveTimer | null {
   try {
     const storedTimer = localStorage.getItem(STORAGE_KEY_TIMER);
     if (!storedTimer) return null;
-    const parsed: ActiveTimer = JSON.parse(storedTimer);
+    const parsed = JSON.parse(storedTimer) as ActiveTimer;
     if (parsed.isRunning && parsed.startedAt) {
-      const now = Date.now();
-      const passedSec = Math.floor((now - parsed.startedAt) / 1000);
-      if (parsed.mode === "countdown") {
-        const newLeft = Math.max(0, parsed.secondsLeft - passedSec);
-        parsed.secondsLeft = newLeft;
-        parsed.elapsedSeconds += passedSec;
-        if (newLeft === 0) parsed.isRunning = false;
-      } else {
-        parsed.elapsedSeconds += passedSec;
-      }
-      parsed.startedAt = now;
+      const passedMilliseconds = Math.max(0, Date.now() - parsed.startedAt);
+      parsed.elapsedSeconds += passedMilliseconds / 1000;
+      parsed.startedAt += passedMilliseconds;
     }
     return parsed;
   } catch (error) {
@@ -293,45 +281,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     const interval = setInterval(() => {
       setActiveTimer((prev) => {
         if (!prev || !prev.isRunning) return prev;
-
-        if (prev.mode === "countdown") {
-          const nextSecondsLeft = prev.secondsLeft - 1;
-          const nextElapsed = prev.elapsedSeconds + 1;
-
-          if (nextSecondsLeft <= 0) {
-            // Beep alert or notification if available
-            try {
-              if (typeof window !== "undefined" && "Notification" in window) {
-                if (Notification.permission === "granted") {
-                  new Notification("Timer Completed! 🎯", {
-                    body: `Your timer for "${prev.itemDescription}" has finished.`,
-                  });
-                }
-              }
-            } catch {
-              // ignore
-            }
-
-            return {
-              ...prev,
-              secondsLeft: 0,
-              elapsedSeconds: nextElapsed,
-              isRunning: false,
-            };
-          }
-
-          return {
-            ...prev,
-            secondsLeft: nextSecondsLeft,
-            elapsedSeconds: nextElapsed,
-          };
-        } else {
-          // Stopwatch
-          return {
-            ...prev,
-            elapsedSeconds: prev.elapsedSeconds + 1,
-          };
-        }
+        const passedMilliseconds = Math.max(0, Date.now() - prev.startedAt);
+        if (passedMilliseconds === 0) return prev;
+        return {
+          ...prev,
+          elapsedSeconds: prev.elapsedSeconds + passedMilliseconds / 1000,
+          startedAt: prev.startedAt + passedMilliseconds,
+        };
       });
     }, 1000);
 
@@ -408,15 +364,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
   // Timer actions
   const startTimer = useCallback(
-    (
-      task: Task,
-      item: TaskItem,
-      options?: { mode?: "stopwatch" | "countdown"; targetMinutes?: number }
-    ) => {
-      const mode = options?.mode ?? "stopwatch";
-      const targetMin = options?.targetMinutes ?? item.estimatedTimeMin ?? 25;
-      const initialTargetSeconds = targetMin * 60;
-
+    (task: Task, item: TaskItem) => {
       // Automatically move status to IN_PROGRESS
       setEntries((prev) =>
         prev.map((day) => ({
@@ -444,27 +392,29 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         taskName: task.taskName,
         itemDescription: item.description,
         projectName,
-        mode,
-        initialTargetSeconds,
-        secondsLeft: initialTargetSeconds,
         elapsedSeconds: (item.actualEffortMin ?? 0) * 60,
         isRunning: true,
         startedAt: Date.now(),
         estimatedTimeMin: item.estimatedTimeMin,
       });
 
-      // Request browser notification permission if not yet decided
-      if (typeof window !== "undefined" && "Notification" in window) {
-        if (Notification.permission === "default") {
-          Notification.requestPermission();
-        }
-      }
     },
     [projectsQuery.data]
   );
 
   const pauseTimer = useCallback(() => {
-    setActiveTimer((prev) => (prev ? { ...prev, isRunning: false } : null));
+    setActiveTimer((prev) => {
+      if (!prev) return null;
+      const passedMilliseconds = prev.isRunning
+        ? Math.max(0, Date.now() - prev.startedAt)
+        : 0;
+      return {
+        ...prev,
+        elapsedSeconds: prev.elapsedSeconds + passedMilliseconds / 1000,
+        startedAt: Date.now(),
+        isRunning: false,
+      };
+    });
   }, []);
 
   const resumeTimer = useCallback(() => {
@@ -473,64 +423,36 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  const stopTimer = useCallback(
-    (saveToEffort = true, markCompleted = false, note?: string) => {
+  const stopTimer = useCallback(() => {
       if (!activeTimer) return;
 
-      const elapsedMinutes = Math.max(1, Math.round(activeTimer.elapsedSeconds / 60));
+      const currentElapsedSeconds = activeTimer.elapsedSeconds +
+        (activeTimer.isRunning
+          ? Math.max(0, Date.now() - activeTimer.startedAt) / 1000
+          : 0);
+      const elapsedMinutes = Math.max(1, Math.round(currentElapsedSeconds / 60));
 
-      if (saveToEffort) {
-        setEntries((prev) =>
-          prev.map((day) => ({
-            ...day,
-            tasks: day.tasks.map((t) => ({
-              ...t,
-              items: t.items.map((it) => {
-                if (it.id === activeTimer.taskItemId) {
-                  return {
+      setEntries((prev) =>
+        prev.map((day) => ({
+          ...day,
+          tasks: day.tasks.map((t) => ({
+            ...t,
+            items: t.items.map((it) =>
+              it.id === activeTimer.taskItemId
+                ? {
                     ...it,
                     actualEffortMin: elapsedMinutes,
-                    status: markCompleted ? "COMPLETED" : it.status,
-                    note: note !== undefined ? note : it.note,
                     updatedAt: new Date().toISOString(),
-                  };
-                }
-                return it;
-              }),
-            })),
-          }))
-        );
-      }
+                  }
+                : it
+            ),
+          })),
+        }))
+      );
 
       setActiveTimer(null);
-    },
-    [activeTimer]
+    }, [activeTimer]
   );
-
-  const resetTimer = useCallback(() => {
-    setActiveTimer((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        elapsedSeconds: 0,
-        secondsLeft: prev.initialTargetSeconds,
-        isRunning: false,
-      };
-    });
-  }, []);
-
-  const extendTimer = useCallback((additionalMinutes: number) => {
-    setActiveTimer((prev) => {
-      if (!prev) return null;
-      const extraSec = additionalMinutes * 60;
-      return {
-        ...prev,
-        secondsLeft: prev.secondsLeft + extraSec,
-        initialTargetSeconds: prev.initialTargetSeconds + extraSec,
-        isRunning: true,
-      };
-    });
-  }, []);
 
   // Task CRUD
   const createTask = useCallback(
@@ -705,31 +627,6 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     [activeTimer]
   );
 
-  const logManualTime = useCallback(
-    (taskItemId: string, minutes: number, note?: string) => {
-      setEntries((prev) =>
-        prev.map((day) => ({
-          ...day,
-          tasks: day.tasks.map((t) => ({
-            ...t,
-            items: t.items.map((it) => {
-              if (it.id === taskItemId) {
-                return {
-                  ...it,
-                  actualEffortMin: Math.max(0, minutes),
-                  note: note !== undefined ? note : it.note,
-                  updatedAt: new Date().toISOString(),
-                };
-              }
-              return it;
-            }),
-          })),
-        }))
-      );
-    },
-    []
-  );
-
   const updateDayEntryType = useCallback(
     (date: string, type: EntryType) => {
       setEntries((prev) => {
@@ -769,15 +666,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         pauseTimer,
         resumeTimer,
         stopTimer,
-        resetTimer,
-        extendTimer,
         createTask,
         updateTaskName,
         deleteTask,
         addTaskItem,
         updateTaskItem,
         deleteTaskItem,
-        logManualTime,
         updateDayEntryType,
         dayStats,
       }}

@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { Task, TaskItem } from "@/lib/tasks/task.schema";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { useProjects } from "@/lib/projects/use-project";
 import { ActiveTimerBanner } from "./active-timer-banner";
 import { TaskCard } from "./task-card";
 import { TaskKanbanView } from "./task-kanban-view";
 import { TaskFormModal } from "./task-form-modal";
-import { TimerSettingsModal } from "./timer-settings-modal";
 import { DayEntryModal } from "./day-entry-modal";
 import {
   Calendar,
@@ -44,10 +42,6 @@ export function TaskManagement() {
   // Modals state
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showDayEntryModal, setShowDayEntryModal] = useState(false);
-  const [timerModalTarget, setTimerModalTarget] = useState<{
-    task: Task;
-    item: TaskItem;
-  } | null>(null);
 
   // Filters & Views
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
@@ -148,14 +142,6 @@ export function TaskManagement() {
     setSearchQuery("");
     setSelectedProjectId("ALL");
     setSelectedStatus("ALL");
-  }
-
-  function handleOpenTimerModal(task: Task, item: TaskItem) {
-    setTimerModalTarget({ task, item });
-  }
-
-  function handleCloseTimerModal() {
-    setTimerModalTarget(null);
   }
 
   const scheduleTypeName = useMemo(() => {
@@ -382,14 +368,12 @@ export function TaskManagement() {
               <TaskCard
                 key={task.id}
                 task={task}
-                onOpenTimerModal={handleOpenTimerModal}
               />
             ))}
           </div>
         ) : (
           <TaskKanbanView
             tasks={filteredTasks}
-            onOpenTimerModal={handleOpenTimerModal}
             selectedStatus={selectedStatus}
           />
         )}
@@ -402,14 +386,6 @@ export function TaskManagement() {
 
       {showDayEntryModal && (
         <DayEntryModal onClose={() => setShowDayEntryModal(false)} />
-      )}
-
-      {timerModalTarget && (
-        <TimerSettingsModal
-          task={timerModalTarget.task}
-          item={timerModalTarget.item}
-          onClose={handleCloseTimerModal}
-        />
       )}
     </div>
   );

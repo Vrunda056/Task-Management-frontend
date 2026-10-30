@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { Task, TaskItem } from "@/lib/tasks/task.schema";
+import type { Task } from "@/lib/tasks/task.schema";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { TaskItemRow } from "./task-item-row";
 import { Plus, Trash2, CheckCircle2, Clock } from "lucide-react";
@@ -9,10 +9,9 @@ import { ConfirmDialog, Button, useToast } from "@/components/ui";
 
 interface TaskCardProps {
   task: Task;
-  onOpenTimerModal: (task: Task, item: TaskItem) => void;
 }
 
-export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
+export function TaskCard({ task }: TaskCardProps) {
   const { showToast } = useToast();
   const { deleteTask, addTaskItem } = useTaskContext();
 
@@ -98,7 +97,6 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
             key={item.id}
             task={task}
             item={item}
-            onOpenTimerModal={onOpenTimerModal}
           />
         ))}
 
