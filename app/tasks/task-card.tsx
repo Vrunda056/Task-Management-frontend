@@ -5,7 +5,7 @@ import type { Task, TaskItem } from "@/lib/tasks/task.schema";
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { TaskItemRow } from "./task-item-row";
 import { Plus, Trash2, CheckCircle2, Clock } from "lucide-react";
-import { ConfirmDialog, Button } from "@/components/ui";
+import { ConfirmDialog, Button, useToast } from "@/components/ui";
 
 interface TaskCardProps {
   task: Task;
@@ -13,6 +13,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
+  const { showToast } = useToast();
   const { deleteTask, addTaskItem } = useTaskContext();
 
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -36,6 +37,7 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
       description: newItemDesc.trim(),
       estimatedTimeMin: newItemEst ? parseInt(newItemEst) || null : null,
     });
+    showToast("Line item added", "success");
 
     setNewItemDesc("");
     setNewItemEst("30");
@@ -159,6 +161,7 @@ export function TaskCard({ task, onOpenTimerModal }: TaskCardProps) {
         confirmLabel="Delete"
         onConfirm={() => {
           deleteTask(task.id);
+          showToast(`Task "${task.taskName}" deleted`, "success");
           setShowDeleteConfirm(false);
         }}
         onClose={() => setShowDeleteConfirm(false)}

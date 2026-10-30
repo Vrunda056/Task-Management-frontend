@@ -16,7 +16,6 @@ import {
   ErrorState,
   LoadingState,
   PageHeader,
-  Toast,
   useToast,
 } from "@/components/ui";
 
@@ -29,7 +28,7 @@ export function ProjectManagement() {
   const [editingProject, setEditingProject] = useState<ProjectResponse | null>(null);
   const [deletingProject, setDeletingProject] = useState<ProjectResponse | null>(null);
 
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
 
   function handleCreate() {
     setEditingProject(null);
@@ -134,8 +133,6 @@ export function ProjectManagement() {
         onConfirm={handleConfirmDelete}
         onClose={() => setDeletingProject(null)}
       />
-
-      <Toast toast={toast} />
     </>
   );
 }

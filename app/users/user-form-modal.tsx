@@ -11,6 +11,7 @@ import {
 import { useCreateUser, useUpdateUser } from "@/lib/users/use-user";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui";
 
 const SUGGESTED_ROLES = [
   "Frontend Engineer",
@@ -30,6 +31,7 @@ interface UserFormModalProps {
 }
 
 export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) {
+  const { showToast } = useToast();
   const isEditing = Boolean(user);
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -98,7 +100,9 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
             onClose();
           },
           onError: (err) => {
-            setFieldErrors({ general: err.message || "Failed to update member." });
+            const message = err.message || "Failed to update member.";
+            setFieldErrors({ general: message });
+            showToast(message, "error");
           },
         }
       );
@@ -129,7 +133,9 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
         onClose();
       },
       onError: (err) => {
-        setFieldErrors({ general: err.message || "Failed to create member." });
+        const message = err.message || "Failed to create member.";
+        setFieldErrors({ general: message });
+        showToast(message, "error");
       },
     });
   }

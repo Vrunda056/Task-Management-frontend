@@ -13,6 +13,7 @@ import {
 import { useUsers } from "@/lib/users/use-user";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui";
 
 interface ProjectFormModalProps {
   project?: ProjectResponse;
@@ -20,6 +21,7 @@ interface ProjectFormModalProps {
 }
 
 export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
+  const { showToast } = useToast();
   const [name, setName] = useState(project?.name ?? "");
   const [description, setDescription] = useState(project?.description ?? "");
   const [createdById, setCreatedById] = useState(project?.createdById ?? "");
@@ -47,7 +49,15 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
       }
       updateMutation.mutate(
         { id: project.id, input: result.data },
-        { onSuccess: onClose },
+        {
+          onSuccess: () => {
+            showToast("Project updated successfully", "success");
+            onClose();
+          },
+          onError: (err) => {
+            showToast(err.message || "Failed to update project", "error");
+          },
+        },
       );
       return;
     }
@@ -63,7 +73,15 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
       );
       return;
     }
-    createMutation.mutate(result.data, { onSuccess: onClose });
+    createMutation.mutate(result.data, {
+      onSuccess: () => {
+        showToast(`Project "${name}" created successfully`, "success");
+        onClose();
+      },
+      onError: (err) => {
+        showToast(err.message || "Failed to create project", "error");
+      },
+    });
   }
 
   return (

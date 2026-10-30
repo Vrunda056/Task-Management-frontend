@@ -15,7 +15,6 @@ import {
   LoadingState,
   PageHeader,
   SearchInput,
-  Toast,
   Toolbar,
   useToast,
 } from "@/components/ui";
@@ -35,7 +34,7 @@ export function UserManagement() {
   const [selectedPosition, setSelectedPosition] = useState("all");
 
   // Toast
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
 
   const allUsers = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
 
@@ -264,9 +263,6 @@ export function UserManagement() {
           </div>
         )}
       </ConfirmDialog>
-
-      {/* Toast Feedback */}
-      <Toast toast={toast} />
     </div>
   );
 }

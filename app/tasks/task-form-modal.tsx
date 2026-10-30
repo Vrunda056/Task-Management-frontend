@@ -7,12 +7,14 @@ import { createTaskSchema, type CreateTaskInput } from "@/lib/tasks/task.schema"
 import { Plus, Trash2, Clock } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui";
 
 interface TaskFormModalProps {
   onClose: () => void;
 }
 
 export function TaskFormModal({ onClose }: TaskFormModalProps) {
+  const { showToast } = useToast();
   const { createTask, selectedDate } = useTaskContext();
   const projectsQuery = useProjects();
 
@@ -79,6 +81,7 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
     }
 
     createTask(result.data);
+    showToast(`Task "${result.data.taskName}" created successfully`, "success");
     onClose();
   }
 

@@ -1,19 +1,34 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  MutationCache,
+} from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/lib/auth/auth-context";
-
-export const queryClient = new QueryClient();
-
 import { TaskProvider } from "@/lib/tasks/task-context";
+import { ToastProvider, showGlobalToast } from "@/components/ui/toast";
+
+export const queryClient = new QueryClient({
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      // Skip if the mutation explicitly asked to handle errors locally
+      if (mutation.meta?.suppressToast) return;
+      showGlobalToast(error.message || "An unexpected error occurred", "error");
+    },
+  }),
+});
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TaskProvider>{children}</TaskProvider>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <TaskProvider>{children}</TaskProvider>
+        </AuthProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
+

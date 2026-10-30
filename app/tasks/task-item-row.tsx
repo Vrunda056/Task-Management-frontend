@@ -13,7 +13,7 @@ import {
   FileText,
   Trash2,
 } from "lucide-react";
-import { ConfirmDialog, StatusBadge } from "@/components/ui";
+import { ConfirmDialog, StatusBadge, useToast } from "@/components/ui";
 
 interface TaskItemRowProps {
   task: Task;
@@ -22,6 +22,7 @@ interface TaskItemRowProps {
 }
 
 export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) {
+  const { showToast } = useToast();
   const {
     activeTimer,
     startTimer,
@@ -45,6 +46,9 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
     else nextStatus = "PENDING";
 
     updateTaskItem(item.id, { status: nextStatus });
+    if (nextStatus === "COMPLETED") {
+      showToast(`Completed "${item.description}"!`, "success");
+    }
   }
 
   function handleQuickTimerClick() {
@@ -250,6 +254,7 @@ export function TaskItemRow({ task, item, onOpenTimerModal }: TaskItemRowProps) 
         confirmLabel="Delete"
         onConfirm={() => {
           deleteTaskItem(item.id);
+          showToast("Line item removed", "success");
           setShowDeleteConfirm(false);
         }}
         onClose={() => setShowDeleteConfirm(false)}
