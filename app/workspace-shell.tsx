@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { ComponentType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   Calendar,
   CheckCircle2,
   ChevronLeft,
@@ -12,13 +13,13 @@ import {
   Layers,
   LayoutGrid,
   LogOut,
-  Settings,
   Users,
 } from "lucide-react";
 
 import { useTaskContext } from "@/lib/tasks/task-context";
 import { useAuth } from "@/lib/auth/auth-context";
 import { ConfirmDialog } from "@/components/ui";
+import { ProfileModal } from "@/components/profile/profile-modal";
 
 interface NavItem {
   label: string;
@@ -80,6 +81,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const { activeTimer, currentDayEntry, selectedDate } = useTaskContext();
   const {
     accessToken,
@@ -91,6 +93,17 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
   } = useAuth();
   const isAuthPage = pathname === "/login";
   const isManager = user?.role === "MANAGER";
+  const isProfileIncomplete = Boolean(user && !user.sheetUrl);
+
+  useEffect(() => {
+    if (user && !user.sheetUrl && typeof window !== "undefined") {
+      const alreadyPrompted = window.sessionStorage.getItem("taskly_profile_prompted");
+      if (!alreadyPrompted) {
+        setShowProfileModal(true);
+        window.sessionStorage.setItem("taskly_profile_prompted", "true");
+      }
+    }
+  }, [user]);
   const isUserManagementPage = pathname === "/users" || pathname.startsWith("/users/");
 
   useEffect(() => {
@@ -171,7 +184,9 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
       .join("")
       .toUpperCase() || "U";
   const pageTitle =
-    pathname === "/users"
+    pathname === "/profile"
+      ? "My Profile"
+      : pathname === "/users"
       ? "Users"
       : pathname === "/projects"
         ? "Projects"
@@ -255,11 +270,28 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
         <div className="sidebar-bottom">
           <div className="sidebar-profile">
-            <span className="avatar avatar-lavender">{userInitials}</span>
-            <span className="profile-copy">
-              <strong>{user?.name}</strong>
-              <small>{user?.role}</small>
-            </span>
+            <Link
+              href="/profile"
+              aria-label="View your profile"
+              className="flex flex-1 items-center gap-3 overflow-hidden text-left hover:opacity-90 transition-opacity cursor-pointer group"
+              title="View your profile"
+            >
+              <div className="relative shrink-0">
+                <span className="avatar avatar-lavender">{userInitials}</span>
+                {isProfileIncomplete && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-warning ring-2 ring-canvas animate-pulse"
+                    title="Profile setup required"
+                  />
+                )}
+              </div>
+              <span className="profile-copy min-w-0">
+                <strong className="truncate group-hover:text-ink transition-colors">{user?.name}</strong>
+                <small className="truncate flex items-center gap-1.5">
+                  {user?.position || (user?.role === "MANAGER" ? "Manager" : "Developer")}
+                </small>
+              </span>
+            </Link>
             <button
               aria-label="Log out"
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-danger-border bg-danger-bg text-danger shadow-2xs transition-all hover:-translate-y-px hover:border-danger hover:bg-danger-border/40 hover:shadow-xs active:translate-y-0 cursor-pointer"
@@ -344,14 +376,52 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
               </Link>
             </div>
 
+            {/* Profile Incomplete - Action Required Topbar Pill */}
+            {isProfileIncomplete && (
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(true)}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-900 shadow-2xs transition-all hover:-translate-y-px hover:border-amber-400 hover:bg-amber-100/90 active:translate-y-0"
+                title="Profile setup required: Connect your Google Sheet"
+              >
+                <AlertTriangle size={13} className="text-amber-600 shrink-0" />
+                <span className="hidden sm:inline">Complete Profile</span>
+                <span className="rounded bg-amber-200/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                  Action Required
+                </span>
+              </button>
+            )}
+
             <span className="topbar-divider" />
             <div className="flex items-center gap-2">
-              <span className="avatar avatar-lavender topbar-avatar">{userInitials}</span>
+              <span className="inline-flex items-center rounded-full border border-purple-border bg-purple-subtle px-2.5 py-1 text-xs font-semibold text-purple">
+                {user?.role === "MANAGER" ? "Manager" : "Developer"}
+              </span>
+              <Link
+                href="/profile"
+                aria-label="View your profile"
+                className="relative cursor-pointer hover:opacity-85 transition-opacity"
+                title="View your profile"
+              >
+                <span className="avatar avatar-lavender topbar-avatar">{userInitials}</span>
+                {isProfileIncomplete && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-warning ring-2 ring-canvas animate-pulse"
+                    title="Profile setup required"
+                  />
+                )}
+              </Link>
             </div>
           </div>
         </header>
         <main className="workspace-main">{children}</main>
       </div>
+
+      {/* Profile & Settings Modal */}
+      <ProfileModal
+        open={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
 
       {/* Logout Confirmation Dialog */}
       <ConfirmDialog

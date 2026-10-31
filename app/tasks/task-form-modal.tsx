@@ -5,7 +5,7 @@ import { useTaskContext } from "@/lib/tasks/task-context";
 import { useProjects } from "@/lib/projects/use-project";
 import { createTaskSchema, type CreateTaskInput } from "@/lib/tasks/task.schema";
 import { Plus, Trash2, Clock } from "lucide-react";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui";
 
@@ -88,11 +88,12 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
   return (
     <Modal
       onClose={onClose}
+      size="lg"
       title="Create Daily Task"
       subtitle="Add a new task with line items and estimated completion times"
     >
       <form onSubmit={handleSubmit}>
-        <div className="p-6">
+        <ModalBody>
           <div className="modal-form-grid">
             <label className="modal-field">
               <span className="modal-label">
@@ -150,19 +151,19 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
             </label>
           </div>
 
-          <div className="mt-4 border-t border-line pt-4">
+          <div className="mt-5 border-t border-line/80 pt-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h4 className="text-[var(--text-sm)] font-semibold text-ink">
                   Task Line Items &amp; Estimates
                 </h4>
                 <p className="mt-0.5 text-[var(--text-xs)] text-muted">
-                  Define the individual deliverable descriptions and target minutes
+                  Define individual deliverables and estimated duration
                 </p>
               </div>
               <button
                 type="button"
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-purple-border bg-purple-subtle/50 px-3 py-1.5 text-xs font-semibold text-purple transition-colors hover:bg-purple-subtle"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-purple-border bg-purple-subtle px-3 py-1.5 text-xs font-semibold text-purple transition-colors hover:border-purple hover:bg-purple hover:text-white"
                 onClick={handleAddItem}
               >
                 <Plus size={14} />
@@ -170,13 +171,13 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
               </button>
             </div>
 
-            <div className="max-h-[260px] space-y-2.5 overflow-y-auto pr-1">
+            <div className="space-y-2.5">
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 rounded-xl border border-line bg-canvas/30 p-2"
+                  className="flex items-center gap-2 rounded-xl border border-line bg-canvas/40 p-2.5 transition-all"
                 >
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-purple-subtle text-[11px] font-bold text-purple">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-purple-border bg-purple-subtle text-[11px] font-mono font-bold text-purple">
                     {index + 1}
                   </div>
                   <div className="flex flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
@@ -225,18 +226,18 @@ export function TaskFormModal({ onClose }: TaskFormModalProps) {
           </div>
 
           {validationError && (
-            <div className="modal-error">{validationError}</div>
+            <div className="modal-error mt-4">{validationError}</div>
           )}
-        </div>
+        </ModalBody>
 
-        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+        <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">
             Create Task & Items
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   );

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
-import { Modal } from "./modal";
+import { Modal, ModalBody, ModalFooter } from "./modal";
 import { Button } from "./button";
 
 export interface ConfirmDialogProps {
@@ -45,7 +45,7 @@ export function ConfirmDialog({
     <Modal
       onClose={onClose}
       disableClose={loading}
-      maxWidth="max-w-md"
+      size="sm"
       title={title}
       headerIcon={
         variant === "danger" ? (
@@ -54,7 +54,7 @@ export function ConfirmDialog({
       }
       headerClassName={variant === "danger" ? "text-danger" : ""}
     >
-      <div className="space-y-4 p-6">
+      <ModalBody className="space-y-4">
         {description && <p className="m-0 text-sm text-ink">{description}</p>}
         {children}
         {warning && (
@@ -62,8 +62,8 @@ export function ConfirmDialog({
             {warning}
           </div>
         )}
-      </div>
-      <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+      </ModalBody>
+      <ModalFooter>
         <Button variant="secondary" disabled={loading} onClick={onClose}>
           {cancelLabel}
         </Button>
@@ -75,7 +75,7 @@ export function ConfirmDialog({
         >
           {loading ? `${confirmLabel}...` : confirmLabel}
         </Button>
-      </div>
+      </ModalFooter>
     </Modal>
   );
 }

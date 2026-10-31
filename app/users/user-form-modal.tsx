@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { User, Mail, Briefcase, Sparkles, AlertCircle } from "lucide-react";
+import {
+  User,
+  Mail,
+  Briefcase,
+  Sparkles,
+  AlertCircle,
+  FileSpreadsheet,
+  ExternalLink,
+} from "lucide-react";
 import {
   createUserSchema,
   updateUserSchema,
@@ -9,7 +17,7 @@ import {
   type UserResponse,
 } from "@/lib/users/user.schema";
 import { useCreateUser, useUpdateUser } from "@/lib/users/use-user";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui";
 
@@ -36,6 +44,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [position, setPosition] = useState(user?.position ?? "");
+  const [sheetUrl, setSheetUrl] = useState(user?.sheetUrl ?? "");
   const [accessRole, setAccessRole] = useState<UserRole>(
     user?.role ?? "DEVELOPER",
   );
@@ -45,6 +54,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
     email?: string;
     position?: string;
     role?: string;
+    sheetUrl?: string;
     general?: string;
   }>({});
 
@@ -63,11 +73,17 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
     event.preventDefault();
     setFieldErrors({});
 
+    const trimmedSheetUrl = sheetUrl.trim();
     const formData = {
       name: name.trim(),
       email: email.trim(),
       position: position.trim(),
-      ...(isEditing ? { role: accessRole } : {}),
+      ...(isEditing
+        ? {
+            role: accessRole,
+            sheetUrl: trimmedSheetUrl.length > 0 ? trimmedSheetUrl : null,
+          }
+        : {}),
     };
 
     if (isEditing && user) {
@@ -80,7 +96,8 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
             (path === "name" ||
               path === "email" ||
               path === "position" ||
-              path === "role") &&
+              path === "role" ||
+              path === "sheetUrl") &&
             !errors[path]
           ) {
             errors[path] = issue.message;
@@ -152,7 +169,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
       }
     >
       <form onSubmit={handleSubmit}>
-        <div className="space-y-5 p-6">
+        <ModalBody className="space-y-5">
           {/* General Error Banner */}
           {(fieldErrors.general || mutation.error) && (
             <div className="modal-error flex items-center gap-2">
@@ -273,10 +290,11 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
                       key={role}
                       type="button"
                       onClick={() => handleRolePick(role)}
-                      className={`cursor-pointer rounded-md border px-2.5 py-1 text-xs transition-all ${
+                      aria-pressed={isSelected}
+                      className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-colors ${
                         isSelected
-                          ? "border-purple bg-purple font-medium text-white shadow-xs"
-                          : "border-line bg-canvas text-ink hover:border-purple hover:bg-purple-50 hover:text-purple"
+                          ? "border-purple bg-purple-subtle font-semibold text-purple"
+                          : "border-line bg-white text-ink-secondary hover:border-purple-border hover:bg-purple-subtle"
                       }`}
                     >
                       {role}
@@ -288,44 +306,88 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
           </div>
 
           {isEditing && (
-            <div className="space-y-1.5">
-              <label htmlFor="user-access-role" className="modal-label">
-                Access Role
-              </label>
-              <select
-                id="user-access-role"
-                className={`modal-input ${
-                  fieldErrors.role ? "!border-danger focus:!border-danger" : ""
-                }`}
-                onChange={(event) => {
-                  setAccessRole(event.target.value as UserRole);
-                  if (fieldErrors.role) {
-                    setFieldErrors((previous) => ({
-                      ...previous,
-                      role: undefined,
-                    }));
-                  }
-                }}
-                value={accessRole}
-              >
-                <option value="DEVELOPER">Developer</option>
-                <option value="MANAGER">Manager</option>
-              </select>
-              <p className="text-xs text-muted">
-                Managers can manage users and projects. Developers can view
-                projects only.
-              </p>
-              {fieldErrors.role && (
-                <p className="text-xs font-medium text-danger">
-                  {fieldErrors.role}
+            <>
+              <div className="space-y-1.5">
+                <label htmlFor="user-access-role" className="modal-label">
+                  Access Role
+                </label>
+                <select
+                  id="user-access-role"
+                  className={`modal-input ${
+                    fieldErrors.role ? "!border-danger focus:!border-danger" : ""
+                  }`}
+                  onChange={(event) => {
+                    setAccessRole(event.target.value as UserRole);
+                    if (fieldErrors.role) {
+                      setFieldErrors((previous) => ({
+                        ...previous,
+                        role: undefined,
+                      }));
+                    }
+                  }}
+                  value={accessRole}
+                >
+                  <option value="DEVELOPER">Developer</option>
+                  <option value="MANAGER">Manager</option>
+                </select>
+                <p className="text-xs text-muted">
+                  Managers can manage users and projects. Developers can view
+                  projects only.
                 </p>
-              )}
-            </div>
+                {fieldErrors.role && (
+                  <p className="text-xs font-medium text-danger">
+                    {fieldErrors.role}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="user-sheet-input" className="modal-label flex items-center gap-1.5">
+                    <FileSpreadsheet className="h-3.5 w-3.5 text-success" />
+                    <span>Master Google Sheet URL</span>
+                  </label>
+                  {sheetUrl.trim() && (
+                    <a
+                      href={sheetUrl.trim()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                    >
+                      Open Sheet <ExternalLink size={10} />
+                    </a>
+                  )}
+                </div>
+                <input
+                  id="user-sheet-input"
+                  className={`modal-input ${
+                    fieldErrors.sheetUrl ? "!border-danger focus:!border-danger" : ""
+                  }`}
+                  placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                  type="url"
+                  value={sheetUrl}
+                  onChange={(e) => {
+                    setSheetUrl(e.target.value);
+                    if (fieldErrors.sheetUrl) {
+                      setFieldErrors((prev) => ({ ...prev, sheetUrl: undefined }));
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted">
+                  Task synchronization destination for this user's work logs.
+                </p>
+                {fieldErrors.sheetUrl && (
+                  <p className="text-xs font-medium text-danger">
+                    {fieldErrors.sheetUrl}
+                  </p>
+                )}
+              </div>
+            </>
           )}
-        </div>
+        </ModalBody>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
+        <ModalFooter>
           <Button
             variant="secondary"
             onClick={onClose}
@@ -346,7 +408,7 @@ export function UserFormModal({ user, onClose, onSuccess }: UserFormModalProps) 
                 ? "Save Changes"
                 : "Create Member"}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   );

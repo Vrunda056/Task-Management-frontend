@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   users: {
     collection: `${API_BASE_URL}/users`,
     byId: (id: string) => `${API_BASE_URL}/users/${encodeURIComponent(id)}`,
+    me: `${API_BASE_URL}/users/me`,
   },
   projects: {
     collection: `${API_BASE_URL}/projects`,

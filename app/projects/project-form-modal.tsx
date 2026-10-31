@@ -11,7 +11,7 @@ import {
   useUpdateProject,
 } from "@/lib/projects/use-project";
 import { useUsers } from "@/lib/users/use-user";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui";
 
@@ -88,9 +88,15 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
     <Modal
       onClose={onClose}
       title={project ? "Edit Project" : "Create New Project"}
+      subtitle={
+        project
+          ? "Update project details and settings"
+          : "Add a new project to your workspace"
+      }
+      size="md"
     >
       <form onSubmit={handleSubmit}>
-        <div className="p-6">
+        <ModalBody>
           <div className="modal-form-grid">
             <label className="modal-field">
               <span className="modal-label">
@@ -150,10 +156,14 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
               {validationError || mutation.error?.message}
             </div>
           )}
-        </div>
+        </ModalBody>
 
-        <div className="flex justify-end gap-2.5 border-t border-line px-6 py-5">
-          <Button variant="secondary" onClick={onClose}>
+        <ModalFooter>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
             Cancel
           </Button>
           <Button variant="primary" type="submit" loading={mutation.isPending}>
@@ -165,7 +175,7 @@ export function ProjectFormModal({ project, onClose }: ProjectFormModalProps) {
                 ? "Save Changes"
                 : "Create Project"}
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   );

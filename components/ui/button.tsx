@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "danger" | "brand" | "amber";
 export type ButtonSize = "sm" | "md";
 
 const BASE_CLASSES =
@@ -13,6 +13,10 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "border border-slate-300 bg-white text-ink hover:border-black hover:text-black hover:bg-slate-50 active:bg-slate-100",
   danger:
     "border border-danger-border bg-danger-bg text-danger hover:bg-danger-border/30 hover:border-danger",
+  brand:
+    "border border-purple bg-purple text-white hover:bg-purple-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(105,88,216,0.25)] active:translate-y-0",
+  amber:
+    "border border-amber-600 bg-amber-600 text-white hover:bg-amber-700 hover:border-amber-700 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(217,119,6,0.25)] active:translate-y-0",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

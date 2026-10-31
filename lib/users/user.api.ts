@@ -4,10 +4,12 @@ import { authenticatedFetch } from "../api/api-client";
 import { parseApiError } from "../api/api-error";
 import {
   createUserSchema,
+  updateProfileSchema,
   updateUserSchema,
+  type CreateUserInput,
+  type UpdateProfileInput,
   type UpdateUserInput,
   userResponseSchema,
-  type CreateUserInput,
   type UserResponse,
 } from "./user.schema";
 
@@ -72,4 +74,28 @@ export async function deleteUser(
   if (!response.ok) {
     throw await parseApiError(response);
   }
+}
+
+export async function getMyProfile(accessToken: string | null): Promise<UserResponse> {
+  const response = await authenticatedFetch(accessToken, API_ENDPOINTS.users.me, { cache: "no-store" });
+  if (!response.ok) {
+    throw await parseApiError(response);
+  }
+  return userResponseSchema.parse(await response.json());
+}
+
+export async function updateMyProfile(
+  input: UpdateProfileInput,
+  accessToken: string | null,
+): Promise<UserResponse> {
+  const validatedInput = updateProfileSchema.parse(input);
+  const response = await authenticatedFetch(accessToken, API_ENDPOINTS.users.me, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(validatedInput),
+  });
+  if (!response.ok) {
+    throw await parseApiError(response);
+  }
+  return userResponseSchema.parse(await response.json());
 }
