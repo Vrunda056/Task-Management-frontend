@@ -31,7 +31,7 @@ const mainNavigation: NavItem[] = [
   { label: "Overview", href: "/", icon: LayoutGrid },
   { label: "My tasks", href: "/tasks", icon: CheckCircle2 },
   { label: "Projects", href: "/projects", icon: Layers },
-  { label: "Calendar", href: null, icon: Calendar },
+  { label: "Calendar", href: "/calendar", icon: Calendar },
 ];
 
 function SidebarLink({
@@ -190,6 +190,8 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
       ? "Users"
       : pathname === "/projects"
         ? "Projects"
+        : pathname === "/calendar"
+          ? "Calendar"
         : pathname.startsWith("/tasks")
           ? "My Tasks"
           : "Workspace";
